@@ -49,8 +49,13 @@ the legend, and popup content.
 | `short_name` | Recommended | Short region code shown on the map. |
 | `region_type` | No | Boundary category shown in popups. |
 | `optional` | No | When `true`, labels the layer as optional. It does not affect visibility. |
-| `visible` | No | When `false`, the layer is available in the layer control but is hidden by default. Defaults to `true`. |
-| `legend` | No | When `false`, the layer is omitted from the map key. Defaults to `true`. |
+| `visible` | No | When `false`, a regular layer is hidden by default but available in the layer control. Defaults to `true`. Draft `subregion` layers are controlled by the SoCal view instead. |
+| `legend` | No | When `false`, a regular layer is omitted from the map key. Defaults to `true`. Subregions appear in their own key while the SoCal view is open. |
+| `overlay_group` | No | `region` marks a state-level region; `subregion` marks an area revealed by the SoCal drill-in. Omit for ordinary independent layers. |
+| `proposed_code` | No | Suggested human-readable MeshCore scope name displayed for a region. It is not an assignment or radio configuration. |
+| `area_code_hints` | No | Array of approximate telephone area-code mnemonics. They are neither geographic boundary definitions nor routing aliases. |
+| `legacy_reference` | No | When `true`, a legacy reference appears in location results only when its layer is enabled. |
+| `color` | No | Six-digit hexadecimal color (`#RRGGBB`) used for the region boundary and key. |
 | `coordination_status` | Recommended | Public status controlling the badge and boundary style. If omitted, the viewer uses `extrapolated_external`. |
 | `coordination_label` | No | Optional text for the status badge. The viewer supplies a standard label when omitted. |
 | `file` | Yes | Local GeoJSON filename/path or an absolute `https://` GeoJSON URL. |
@@ -80,6 +85,15 @@ allow a coordinator to operate their own GeoJSON endpoint:
 ```
 
 `index.json` is strict JSON, so do not add comments to it.
+
+When a `socal` layer and `subregion` entries are present, the viewer opens in
+the **Original** statewide view. Select **SoCal proposal** to highlight the revised
+parent region, then click it to reveal subdivisions. **State view** or a click
+outside SoCal returns to the statewide proposal. Set `visible: false` and `legend: false` on subdivision
+entries for compatibility with generic viewers. A shared URL can include
+`view=proposal` or `view=socal`, as well as the existing `lat`, `lng`, and
+`z` parameters for an inspected location. The drill-in is disabled if the
+manifest does not contain both the parent and subdivisions.
 
 ## GeoJSON files
 

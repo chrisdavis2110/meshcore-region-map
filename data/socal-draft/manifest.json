@@ -1,0 +1,307 @@
+{
+  "metadata": {
+    "title": "California MeshCore Region Map · SoCal draft",
+    "notes": "Southern California boundaries and subdivisions are a draft for planning, not confirmed RF coverage or coordinated region assignments."
+  },
+  "county_baseline": {
+    "top_level": {
+      "norcal": ["Colusa", "Del Norte", "Glenn", "Humboldt", "Lake", "Lassen", "Mendocino", "Modoc", "Plumas", "Shasta", "Siskiyou", "Tehama", "Trinity"],
+      "sacramentofoothills": ["Butte", "Nevada", "Placer", "Sacramento", "Sierra", "Sutter", "Yolo", "Yuba"],
+      "sierranevada": ["Alpine", "Amador", "Calaveras", "El Dorado", "Inyo", "Mariposa", "Mono", "Tuolumne"],
+      "bayarea": ["Alameda", "Contra Costa", "Marin", "Napa", "San Francisco", "San Mateo", "Santa Clara", "Solano", "Sonoma"],
+      "centralcoast": ["Monterey", "San Benito", "San Luis Obispo", "Santa Cruz"],
+      "centralvalley": ["Fresno", "Kern", "Kings", "Madera", "Merced", "San Joaquin", "Stanislaus", "Tulare"],
+      "socal": ["Imperial", "Los Angeles", "Orange", "Riverside", "San Bernardino", "San Diego", "Santa Barbara", "Ventura"]
+    },
+    "adjusted_legacy": {
+      "eastsierra": ["Alpine", "Inyo", "Mono"],
+      "slo": ["San Luis Obispo"],
+      "cvsouth": ["Kern", "Kings", "Tulare"]
+    }
+  },
+  "updates": [
+    {
+      "id": "norcal",
+      "coordination_status": "official_local",
+      "coordination_label": "Official Local Region",
+      "overlay_group": "region",
+      "color": "#6e6e6e"
+    },
+    {
+      "id": "sacramentofoothills",
+      "coordination_status": "official_local",
+      "coordination_label": "Official Local Region",
+      "overlay_group": "region",
+      "color": "#d61f1f"
+    },
+    {
+      "id": "sierranevada",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment",
+      "overlay_group": "region",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "eastsierra",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment"
+    },
+    {
+      "id": "bayarea",
+      "coordination_status": "official_local",
+      "coordination_label": "Official Local Region",
+      "overlay_group": "region",
+      "color": "#6b1515"
+    },
+    {
+      "id": "centralcoast",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment",
+      "overlay_group": "region",
+      "color": "#2c3eb8"
+    },
+    {
+      "id": "slo",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment"
+    },
+    {
+      "id": "centralvalley",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment",
+      "overlay_group": "region",
+      "color": "#3cb64a"
+    },
+    {
+      "id": "cvsouth",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment"
+    },
+    {
+      "id": "socal",
+      "coordination_status": "proposed",
+      "coordination_label": "Draft boundary adjustment",
+      "overlay_group": "region",
+      "color": "#f0c400"
+    },
+    {
+      "id": "santabarbara",
+      "name": "Santa Barbara County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "ventura",
+      "name": "Ventura County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "losangeles",
+      "name": "Los Angeles County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "orange",
+      "name": "Orange County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "sanbernardino",
+      "name": "San Bernardino County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "riverside",
+      "name": "Riverside County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "imperial",
+      "name": "Imperial County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    },
+    {
+      "id": "sandiego",
+      "name": "San Diego County (legacy county reference)",
+      "coordination_status": "political_boundaries",
+      "coordination_label": "Legacy county reference",
+      "legacy_reference": true
+    }
+  ],
+  "subregion_defaults": {
+    "region_type": "Proposed SoCal subregion",
+    "coordination_status": "proposed",
+    "coordination_label": "Draft proposal",
+    "overlay_group": "subregion",
+    "visible": false,
+    "legend": false
+  },
+  "subregions": [
+    {
+      "id": "coachella",
+      "name": "Coachella Valley",
+      "short_name": "COACHELLA",
+      "file": "draft-coachella.geojson",
+      "color": "#6cae6a",
+      "proposed_code": "socal-coachella",
+      "area_code_hints": ["760", "442"]
+    },
+    {
+      "id": "conejo",
+      "name": "Conejo & Simi Valleys",
+      "short_name": "CONEJO",
+      "file": "draft-conejo.geojson",
+      "color": "#bc7084",
+      "proposed_code": "socal-conejo",
+      "area_code_hints": ["805", "820", "818", "747"]
+    },
+    {
+      "id": "highdesert",
+      "name": "Antelope & High Desert",
+      "short_name": "HIGHDESERT",
+      "file": "draft-highdesert.geojson",
+      "color": "#db6c36",
+      "proposed_code": "socal-highdesert",
+      "area_code_hints": ["661", "760", "442"]
+    },
+    {
+      "id": "imperialbasin",
+      "name": "Imperial & Colorado Desert",
+      "short_name": "IMPERIALBASIN",
+      "file": "draft-imperialbasin.geojson",
+      "color": "#bd5c94",
+      "proposed_code": "socal-imperial",
+      "area_code_hints": ["760", "442"]
+    },
+    {
+      "id": "inlandempire",
+      "name": "Inland Empire",
+      "short_name": "INLANDEMPIRE",
+      "file": "draft-inlandempire.geojson",
+      "color": "#896ac5",
+      "proposed_code": "socal-ie",
+      "area_code_hints": ["909", "840", "951"]
+    },
+    {
+      "id": "la",
+      "name": "Los Angeles Basin",
+      "short_name": "LA",
+      "file": "draft-la.geojson",
+      "color": "#ce755b",
+      "proposed_code": "socal-la",
+      "area_code_hints": ["213", "323", "738", "310", "424"]
+    },
+    {
+      "id": "mojave",
+      "name": "Eastern Mojave",
+      "short_name": "MOJAVE",
+      "file": "draft-mojave.geojson",
+      "color": "#d15462",
+      "proposed_code": "socal-mojave",
+      "area_code_hints": ["760", "442"]
+    },
+    {
+      "id": "northsandiego",
+      "name": "North San Diego",
+      "short_name": "NORTHSANDIEGO",
+      "file": "draft-northsandiego.geojson",
+      "color": "#dc8e43",
+      "proposed_code": "socal-northsd",
+      "area_code_hints": ["760", "442", "858"]
+    },
+    {
+      "id": "orangecoast",
+      "name": "Orange County Coast",
+      "short_name": "ORANGECOAST",
+      "file": "draft-orangecoast.geojson",
+      "color": "#507fc1",
+      "proposed_code": "socal-oc",
+      "area_code_hints": ["714", "657", "949"]
+    },
+    {
+      "id": "sandiegometro",
+      "name": "San Diego Metro",
+      "short_name": "SANDIEGOMETRO",
+      "file": "draft-sandiegometro.geojson",
+      "color": "#36a3ad",
+      "proposed_code": "socal-sd",
+      "area_code_hints": ["619", "858"]
+    },
+    {
+      "id": "santaclarita",
+      "name": "Santa Clarita Valley",
+      "short_name": "SANTACLARITA",
+      "file": "draft-santaclarita.geojson",
+      "color": "#7f90bd",
+      "proposed_code": "socal-scv",
+      "area_code_hints": ["661"]
+    },
+    {
+      "id": "sbcoast",
+      "name": "Santa Barbara & Santa Ynez",
+      "short_name": "SBCOAST",
+      "file": "draft-sbcoast.geojson",
+      "color": "#cc8c36",
+      "proposed_code": "socal-sba",
+      "area_code_hints": ["805", "820"]
+    },
+    {
+      "id": "sfvalley",
+      "name": "San Fernando Valley",
+      "short_name": "SFVALLEY",
+      "file": "draft-sfvalley.geojson",
+      "color": "#418cb6",
+      "proposed_code": "socal-sfv",
+      "area_code_hints": ["818", "747"]
+    },
+    {
+      "id": "sgv",
+      "name": "San Gabriel & Pomona Valleys",
+      "short_name": "SGV",
+      "file": "draft-sgv.geojson",
+      "color": "#a39f4c",
+      "proposed_code": "socal-sgv",
+      "area_code_hints": ["626", "909", "840"]
+    },
+    {
+      "id": "santamaria",
+      "name": "Santa Maria & Nipomo",
+      "short_name": "SANTAMARIA",
+      "file": "draft-santamaria.geojson",
+      "color": "#e06a45",
+      "proposed_code": "socal-smv",
+      "area_code_hints": ["805", "820"]
+    },
+    {
+      "id": "lasouthbay",
+      "name": "South Bay & Long Beach",
+      "short_name": "LASOUTHBAY",
+      "file": "draft-lasouthbay.geojson",
+      "color": "#83a85b",
+      "proposed_code": "socal-southbay",
+      "area_code_hints": ["310", "424", "562"]
+    },
+    {
+      "id": "venturacoast",
+      "name": "Ventura & Oxnard",
+      "short_name": "VENTURACOAST",
+      "file": "draft-venturacoast.geojson",
+      "color": "#9d6ab7",
+      "proposed_code": "socal-ventura",
+      "area_code_hints": ["805", "820"]
+    }
+  ]
+}

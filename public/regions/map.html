@@ -101,6 +101,10 @@
       cursor: pointer;
     }
 
+    .leaflet-pane > svg path.leaflet-interactive {
+      pointer-events: visiblePainted;
+    }
+
     .leaflet-control {
       clear: both;
       float: left;
@@ -161,16 +165,25 @@
       border-bottom: 1px solid #ccc;
       color: #000;
       display: block;
-      font: bold 18px/26px Arial, Helvetica, sans-serif;
-      height: 26px;
+      font: bold 20px/34px Arial, Helvetica, sans-serif;
+      height: 34px;
       text-align: center;
       text-decoration: none;
-      width: 26px;
+      width: 34px;
     }
 
     .leaflet-control-layers {
       padding: 6px 8px;
+      max-width: min(400px, calc(100vw - 24px));
     }
+
+    .leaflet-control-layers-list {
+      max-height: min(60vh, 420px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .leaflet-control-layers-toggle { display: none; }
 
     .leaflet-control-layers.panel-collapsed {
       max-height: none;
@@ -185,6 +198,7 @@
     .leaflet-control-layers.panel-collapsed .leaflet-control-layers-overlays,
     .leaflet-control-layers.panel-collapsed .leaflet-control-layers-base,
     .leaflet-control-layers.panel-collapsed .leaflet-control-layers-separator,
+    .leaflet-control-layers.panel-collapsed .layer-actions-title,
     .leaflet-control-layers.panel-collapsed .deselect-action {
       display: none;
     }
@@ -196,15 +210,25 @@
     }
 
     .leaflet-control-layers .layer-actions {
-      border-top: 1px solid #d7dee7;
-      margin-top: 8px;
-      padding-top: 8px;
+      align-items: center;
+      border-bottom: 1px solid #d7dee7;
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+    }
+
+    .layer-actions-title {
+      color: #1e293b;
+      flex: 1;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .leaflet-control-layers.panel-collapsed .layer-actions {
-      border-top: 0;
-      margin-top: 0;
-      padding-top: 0;
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
     }
 
     .leaflet-control-layers.panel-collapsed .layer-actions button {
@@ -220,11 +244,6 @@
       cursor: pointer;
       font: 12px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       padding: 5px 8px;
-      width: 100%;
-    }
-
-    .leaflet-control-layers .layer-actions button + button {
-      margin-top: 6px;
     }
 
     .leaflet-control-layers .layer-actions button:hover {
@@ -250,6 +269,7 @@
       line-height: 1.3;
       margin: 13px 19px;
     }
+    .leaflet-popup-scrolled { overflow: auto; overscroll-behavior: contain; }
 
     .leaflet-popup-close-button {
       color: #475569;
@@ -279,32 +299,15 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .title {
-      background: rgba(255, 255, 255, 0.94);
-      border-radius: 6px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
-      color: #16202a;
-      line-height: 1.35;
-      padding: 10px 12px;
-    }
-
-    .title h1 {
-      font-size: 16px;
-      margin: 0 0 2px;
-    }
-
-    .title p {
-      font-size: 12px;
-      margin: 0;
-    }
-
     .legend {
       background: rgba(255, 255, 255, 0.94);
-      border-radius: 6px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+      border: 1px solid #d6e0e7;
+      border-radius: 12px;
+      box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
       color: #16202a;
       max-height: min(52vh, 420px);
       overflow: auto;
+      overscroll-behavior: contain;
       padding: 10px 12px;
     }
 
@@ -315,20 +318,76 @@
 
     .legend h2 {
       align-items: center;
+      background: #fff;
       display: flex;
       font-size: 13px;
       gap: 10px;
       justify-content: space-between;
       margin: 0 0 8px;
+      padding-bottom: 6px;
+      position: sticky;
+      top: -10px;
+      z-index: 1;
     }
 
     .legend.panel-collapsed h2 {
       margin: 0;
+      padding-bottom: 0;
     }
+
+    .legend.panel-collapsed h2 [data-map-title] { display: none; }
 
     .legend.panel-collapsed #legendRows {
       display: none;
     }
+
+    .legend-note, .socal-key-note {
+      color: #475569;
+      font-size: 11px;
+      margin: 0 0 8px;
+      max-width: 300px;
+      white-space: normal;
+    }
+
+    .legend.panel-collapsed .legend-note,
+    .legend.panel-collapsed #socalDraftKey {
+      display: none;
+    }
+
+    .socal-key-title { font-size: 12px; margin: 10px 0 4px; }
+    .legend-row small { color: #475569; display: block; white-space: normal; }
+    .region-nav {
+      background: rgba(255, 255, 255, 0.97); border: 1px solid #d6e0e7;
+      border-radius: 10px; box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16); padding: 7px;
+    }
+    .region-nav-label { color: #526876; font: 700 10px/1.2 system-ui, sans-serif; margin: 0 3px 5px; }
+    .region-nav-buttons { display: flex; gap: 4px; }
+    .region-nav button {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px;
+      color: #1e293b; cursor: pointer; font: 600 12px/1.2 system-ui, sans-serif;
+      min-height: 32px; padding: 5px 9px;
+    }
+    .region-nav button[aria-pressed="true"] { background: #075f62; border-color: #075f62; color: #fff; }
+    .region-nav button:disabled { cursor: wait; opacity: .55; }
+    .region-nav .return-state { margin-top: 5px; width: 100%; }
+    .region-nav-hint { color: #526876; font: 11px/1.35 system-ui, sans-serif; margin: 7px 3px 2px; max-width: 170px; }
+
+    .sampled-layers {
+      background: rgba(255, 255, 255, 0.97); border: 1px solid #d6e0e7;
+      border-radius: 12px; box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
+      box-sizing: border-box; color: #172b38; font: 12px/1.4 system-ui, sans-serif;
+      padding: 10px 12px; width: min(245px, calc(100vw - 24px));
+    }
+    .sampled-layers-title { color: #526876; font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .sampled-layers label { align-items: center; cursor: pointer; display: flex; font-size: 13px; font-weight: 700; gap: 8px; min-height: 30px; }
+    .sampled-layers input { accent-color: #087b78; height: 16px; margin: 0; width: 16px; }
+    .sampled-layers-note, .sampled-layers-status { color: #526876; font-size: 11px; margin: 4px 0 0; }
+    .sampled-layers-status:empty { display: none; }
+    .sampled-legend { color: #526876; font-size: 10px; margin-top: 7px; }
+    .sampled-legend[hidden] { display: none; }
+    .sampled-legend-ramp { background: linear-gradient(to right, #5803a4, #9e1c9b, #d25072, #f48b47, #fdc527); border-radius: 3px; height: 7px; margin: 3px 0; }
+    .sampled-legend-range { display: flex; justify-content: space-between; }
+    .sampled-layers :focus-visible, .legend :focus-visible, .region-nav :focus-visible { outline: 3px solid #199a9a; outline-offset: 2px; }
 
     .panel-toggle {
       background: #f8fafc;
@@ -423,6 +482,22 @@
       white-space: nowrap;
     }
 
+    .region-hover-tooltip.leaflet-tooltip, .boundary-note-tooltip.leaflet-tooltip {
+      background: rgba(255, 255, 255, 0.98); border: 1px solid #d6e0e7;
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(15, 35, 48, 0.18);
+      box-sizing: border-box; color: #172b38; font: 12px/1.4 system-ui, sans-serif;
+      max-width: calc(100vw - 24px); padding: 10px 12px; pointer-events: none;
+      white-space: normal; width: 250px;
+    }
+    .region-hover-tooltip.leaflet-tooltip::before, .boundary-note-tooltip.leaflet-tooltip::before { display: none; }
+    .region-hover-name { color: #102c3b; font-size: 13px; font-weight: 750; margin: 0 0 5px; }
+    .boundary-note-text { color: #243c49; font-size: 12px; line-height: 1.4; }
+    .boundary-note-hit { cursor: help; }
+    .scope-title { color: #526876; display: block; font-size: 10px; font-weight: 700; letter-spacing: .05em; margin: 5px 0; text-transform: uppercase; }
+    .scope-stack { align-items: center; display: flex; flex-wrap: wrap; gap: 4px; }
+    .scope-separator { color: #81939d; font-size: 13px; }
+    .scope-help { color: #526876; display: block; font-size: 11px; margin-top: 6px; }
+
     .swatch {
       border: 2px solid currentColor;
       border-radius: 3px;
@@ -449,6 +524,11 @@
         currentColor 3px,
         currentColor 5px
       );
+    }
+
+    .swatch.proposed.draft {
+      background-image: none;
+      border-style: dashed;
     }
 
     .popup-title {
@@ -499,6 +579,10 @@
       display: block;
       font-size: 12px;
     }
+    .region-list .scope-stack { display: flex; }
+    .region-list .scope-separator { display: inline; color: #81939d; }
+    .region-list .scope-title { font-size: 10px; }
+    .region-list .scope-help { font-size: 11px; }
 
     .error {
       background: #fff3f0;
@@ -515,19 +599,6 @@
     }
 
     @media (max-width: 700px) {
-      .title {
-        max-width: calc(100vw - 96px);
-        padding: 8px 10px;
-      }
-
-      .title h1 {
-        font-size: 14px;
-      }
-
-      .title p {
-        display: none;
-      }
-
       .leaflet-right .leaflet-control,
       .leaflet-left .leaflet-control {
         margin-left: 8px;
@@ -535,15 +606,18 @@
       }
 
       .leaflet-control-layers {
-        max-height: min(58vh, 390px);
         max-width: calc(100vw - 24px);
-        overflow: auto;
       }
 
       .legend {
         max-height: min(48vh, 320px);
         max-width: calc(100vw - 24px);
       }
+
+      .leaflet-popup-content { overflow-wrap: anywhere; }
+      .region-list li { align-items: start; }
+      .region-list li > div { min-width: 0; }
+      .leaflet-bottom.leaflet-left { bottom: 22px; }
     }
   </style>
 </head>
@@ -590,7 +664,7 @@
     }
 
     function regionCode(properties) {
-      return String(regionId(properties) || properties.short_name || "").toLowerCase();
+      return String(properties.proposed_code || regionId(properties) || properties.short_name || "").toLowerCase();
     }
 
     function titleCaseKind(kind) {
@@ -640,7 +714,7 @@
     }
 
     function swatchClass(properties) {
-      return `swatch ${coordinationClass(properties)}`;
+      return `swatch ${coordinationClass(properties)}${properties.draft ? " draft" : ""}`;
     }
 
     const defaultCenter = [37.166, -119.449];
@@ -664,7 +738,6 @@
       const zoomParam = params.get("z");
       const zoom = zoomParam === null ? defaultZoom : Number(zoomParam);
       return {
-        center: [lat, lng],
         latlng: L.latLng(lat, lng),
         zoom: Number.isFinite(zoom) ? Math.min(19, Math.max(1, Math.round(zoom))) : defaultZoom,
       };
@@ -675,8 +748,17 @@
     const initialZoom = initialSharedView?.zoom || defaultZoom;
     // Leaflet requires setView to establish its initial center and zoom.
     const map = L.map("map", { minZoom: 1 }).setView(initialCenter, initialZoom, { animate: false });
-    const loadedRegionFeatures = [];
-    const regionLayers = [];
+    // Controls and popups should scroll themselves without zooming the map.
+    L.DomEvent.disableScrollPropagation(map.getContainer().querySelector(".leaflet-control-container"));
+    map.on("popupopen", event => L.DomEvent.disableScrollPropagation(event.popup.getElement()));
+    const regionRecords = [];
+    const subregionLayers = [];
+    let socalLayer = null;
+    let stateBounds = null;
+    const initialViewParams = new URLSearchParams(window.location.search);
+    const initialRegionView = initialViewParams.get("view");
+    let regionView = ["proposal", "socal"].includes(initialRegionView) ? initialRegionView : "california";
+    let coverageVisible = false;
     const regionPathPrefix = window.location.pathname.includes("/regions/") ? "" : "regions/";
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -694,10 +776,13 @@
       if (!container || container.querySelector(".layer-actions")) {
         return;
       }
-      const div = L.DomUtil.create("div", "layer-actions", container);
+      const div = L.DomUtil.create("div", "layer-actions");
+      container.insertBefore(div, container.firstChild);
+      container.classList.add("panel-collapsed");
       div.innerHTML = `
-        <button class="panel-toggle" type="button" aria-expanded="true">Hide layers</button>
+        <span class="layer-actions-title">Layers</span>
         <button class="deselect-action" type="button">Deselect all</button>
+        <button class="panel-toggle" type="button" aria-label="Open layers" aria-expanded="false">Layers</button>
       `;
       const toggle = div.querySelector(".panel-toggle");
       const deselect = div.querySelector(".deselect-action");
@@ -706,11 +791,12 @@
         L.DomEvent.stop(event);
         const collapsed = container.classList.toggle("panel-collapsed");
         toggle.textContent = collapsed ? "Layers" : "Hide layers";
+        toggle.setAttribute("aria-label", collapsed ? "Open layers" : "Hide layers");
         toggle.setAttribute("aria-expanded", String(!collapsed));
       });
       L.DomEvent.on(deselect, "click", (event) => {
         L.DomEvent.stop(event);
-        regionLayers.forEach((layer) => {
+        regionRecords.forEach(({layer}) => {
           if (map.hasLayer(layer)) {
             map.removeLayer(layer);
           }
@@ -719,22 +805,55 @@
     }
     installLayerActions();
 
+    const regionNavigation = L.control({ position: "topleft" });
+    regionNavigation.onAdd = () => {
+      const div = L.DomUtil.create("div", "region-nav");
+      div.hidden = true;
+      div.innerHTML = `<p class="region-nav-label">Region map</p><div class="region-nav-buttons" role="group" aria-label="Region map view">
+        <button type="button" data-view="california" aria-pressed="false" disabled>Original</button>
+        <button type="button" data-view="proposal" aria-pressed="false" disabled>SoCal proposal</button>
+      </div>
+      <button type="button" class="return-state" hidden>← State view</button>
+      <p class="region-nav-hint" hidden>Hover or tap the northern border for terrain notes.</p>`;
+      L.DomEvent.disableClickPropagation(div);
+      div.querySelectorAll("button[data-view]").forEach(button => {
+        L.DomEvent.on(button, "click", (event) => {
+          L.DomEvent.stop(event);
+          const next = button.dataset.view;
+          if (next === regionView) return;
+          setRegionView(next, { fit: next === "proposal" || regionView === "socal" });
+        });
+      });
+      L.DomEvent.on(div.querySelector(".return-state"), "click", (event) => {
+        L.DomEvent.stop(event);
+        setRegionView("proposal");
+      });
+      return div;
+    };
+    regionNavigation.addTo(map);
+
     const legend = L.control({ position: "bottomright" });
     legend.onAdd = () => {
-      const div = L.DomUtil.create("div", "legend");
+      const div = L.DomUtil.create("div", "legend panel-collapsed");
       div.innerHTML = `
         <h2>
           <span data-map-title>Regions</span>
-          <button class="panel-toggle" type="button" aria-expanded="true">Hide key</button>
+          <button class="panel-toggle" type="button" aria-expanded="false">Region key</button>
         </h2>
+        <p class="legend-note" hidden>SoCal boundaries and codes are draft proposals for community review.</p>
         <div id="legendRows"></div>
+        <section id="socalDraftKey" hidden aria-label="SoCal subregion key">
+          <h3 class="socal-key-title">SoCal subregions · draft</h3>
+          <p class="socal-key-note">Phone area codes are approximate hints, not region boundaries or routing aliases.</p>
+          <div id="socalDraftRows"></div>
+        </section>
       `;
       const toggle = div.querySelector(".panel-toggle");
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.on(toggle, "click", (event) => {
         L.DomEvent.stop(event);
         const collapsed = div.classList.toggle("panel-collapsed");
-        toggle.textContent = collapsed ? "Key" : "Hide key";
+        toggle.textContent = collapsed ? "Region key" : "Hide key";
         toggle.setAttribute("aria-expanded", String(!collapsed));
       });
       return div;
@@ -749,50 +868,26 @@
       });
     }
 
-    function collapseLayerPanel() {
-      const layerContainer = overlayControl.getContainer();
-      const layerToggle = layerContainer?.querySelector(".panel-toggle");
-      if (layerContainer && layerToggle && !layerContainer.classList.contains("panel-collapsed")) {
-        layerContainer.classList.add("panel-collapsed");
-        layerToggle.textContent = "Layers";
-        layerToggle.setAttribute("aria-expanded", "false");
-      }
-    }
-
-    function collapseMobilePanels() {
-      if (!window.matchMedia("(max-width: 700px)").matches) {
-        return;
-      }
-      const legendContainer = legend.getContainer();
-      const legendToggle = legendContainer?.querySelector(".panel-toggle");
-      if (legendContainer && legendToggle && !legendContainer.classList.contains("panel-collapsed")) {
-        legendContainer.classList.add("panel-collapsed");
-        legendToggle.textContent = "Key";
-        legendToggle.setAttribute("aria-expanded", "false");
-      }
-    }
-    collapseMobilePanels();
-    collapseLayerPanel();
-
     function featureStyle(feature) {
       const id = regionId(feature.properties);
       const color = colorFor(id || "");
       const status = coordinationStatus(feature.properties || {});
       const isOfficial = status === "official_new_england" || status === "official_local";
-      const isHatched = status === "proposed" || status === "extrapolated_external";
+      const isHatched = status === "extrapolated_external" || (status === "proposed" && !feature.properties.draft);
+      const highlightSoCal = id === "socal" && regionView === "proposal";
       return {
         color,
         dashArray: status === "extrapolated_external" ? "6 5" : null,
         fillColor: isHatched ? `url(#hatch-${status}-${id})` : color,
-        fillOpacity: isHatched ? 0.18 : (isOfficial ? 0.18 : 0.09),
-        opacity: isOfficial ? 0.95 : 0.48,
-        weight: id === "east" ? 2 : 3
+        fillOpacity: coverageVisible ? (highlightSoCal ? 0.06 : 0.025) : (highlightSoCal ? 0.23 : (isHatched ? 0.18 : (isOfficial ? 0.18 : 0.09))),
+        opacity: highlightSoCal ? 1 : (isOfficial ? 0.95 : (status === "proposed" && feature.properties.draft ? 0.85 : 0.48)),
+        weight: highlightSoCal ? 4 : (id === "east" ? 2 : 3)
       };
     }
 
     function addHatchPattern(layer, properties) {
       const status = coordinationStatus(properties);
-      if (status !== "proposed" && status !== "extrapolated_external") {
+      if (status !== "extrapolated_external" && !(status === "proposed" && !properties.draft)) {
         return;
       }
       const id = regionId(properties);
@@ -843,7 +938,10 @@
     }
 
     function fetchJson(url) {
-      return fetch(url).then((response) => {
+      // Revalidate local map data so revised boundaries do not remain stale in
+      // browser caches. Keep external GeoJSON requests unchanged for CORS.
+      const sameOrigin = new URL(url, window.location.href).origin === window.location.origin;
+      return fetch(url, sameOrigin ? { cache: "no-cache" } : undefined).then((response) => {
         if (!response.ok) {
           throw new Error(`${url}: HTTP ${response.status}`);
         }
@@ -907,6 +1005,92 @@
       return false;
     }
 
+    function renderLegendRow(row, props, isSubregion) {
+      const color = colorFor(regionId(props));
+      const areaCodes = isSubregion && Array.isArray(props.area_code_hints)
+        ? `<small>Area code hints: ${escapeHtml(props.area_code_hints.join(" / "))}</small>` : "";
+      row.innerHTML = `
+        <span class="${swatchClass(props)}" style="color: ${color}; background-color: ${color}33"></span>
+        <span><code class="region-code">${escapeHtml(regionCode(props))}</code> - ${escapeHtml(props.name)}${coordinationStatus(props) === "proposed" ? " (draft)" : ""}${areaCodes}</span>
+      `;
+    }
+
+    function applyRegionVersion(view) {
+      regionRecords.forEach(record => {
+        if (record.proposalOnly && view === "california") {
+          if (record.currentView !== view) {
+            record.proposalVisible = map.hasLayer(record.layer);
+            if (record.proposalVisible) map.removeLayer(record.layer);
+            overlayControl.removeLayer(record.layer);
+            if (record.legendRow) record.legendRow.hidden = true;
+          }
+          record.currentView = view;
+          return;
+        }
+        if (record.proposalOnly && record.currentView === "california") {
+          const props = record.proposal.data.features?.[0]?.properties || record.proposal.entry;
+          overlayControl.addOverlay(record.layer, `${escapeHtml(regionCode(record.points ? record.proposal.entry : props))} - ${escapeHtml(record.points ? record.proposal.entry.name : props.name)}`);
+          if (record.proposalVisible) {
+            record.layer.addTo(map);
+            if (!record.points) addHatchPattern(record.layer, props);
+          }
+          if (record.legendRow) record.legendRow.hidden = false;
+        }
+        record.currentView = view;
+        const variant = view === "california" && record.original ? record.original : record.proposal;
+        if (record.active !== variant) {
+          record.layer.clearLayers();
+          record.layer.addData(variant.data);
+          record.active = variant;
+          const props = variant.data.features?.[0]?.properties || variant.entry;
+          if (!record.isSubregion) {
+            overlayControl.removeLayer(record.layer);
+            overlayControl.addOverlay(record.layer, `${escapeHtml(regionCode(record.points ? variant.entry : props))} - ${escapeHtml(record.points ? variant.entry.name : props.name)}`);
+          }
+          if (record.legendRow) renderLegendRow(record.legendRow, props, record.isSubregion);
+          if (!record.points && map.hasLayer(record.layer)) addHatchPattern(record.layer, props);
+        }
+      });
+    }
+
+    function setRegionView(next, { fit = true, updateUrl = true } = {}) {
+      if (!socalLayer || !subregionLayers.length || !["california", "proposal", "socal"].includes(next)) return;
+      clearRegionHover();
+      const changed = next !== regionView;
+      regionView = next;
+      const isSoCal = next === "socal";
+      if (changed) applyRegionVersion(next);
+      regionRecords.forEach(({layer}) => layer.setStyle(featureStyle));
+      subregionLayers.forEach(({ layer, properties }) => {
+        if (isSoCal && !map.hasLayer(layer)) {
+          layer.addTo(map);
+          addHatchPattern(layer, properties);
+        } else if (!isSoCal && map.hasLayer(layer)) {
+          map.removeLayer(layer);
+        }
+      });
+      document.getElementById("socalDraftKey").hidden = !isSoCal;
+      legend.getContainer().querySelector(".legend-note").hidden = next === "california";
+      const navigation = regionNavigation.getContainer();
+      navigation.querySelectorAll("button[data-view]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.view === (isSoCal ? "proposal" : next)));
+      });
+      navigation.querySelector(".return-state").hidden = !isSoCal;
+      updateNorthernBoundaryNotes();
+      map.closePopup();
+      if (fit) {
+        const bounds = isSoCal ? socalLayer.getBounds() : stateBounds;
+        if (bounds?.isValid()) map.fitBounds(bounds.pad(0.04), { animate: false });
+      }
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        if (next === "california") url.searchParams.delete("view");
+        else url.searchParams.set("view", next);
+        ["lat", "lng", "z"].forEach((key) => url.searchParams.delete(key));
+        window.history.replaceState(null, "", url);
+      }
+    }
+
     function formatCoordinate(value) {
       return Number(value).toFixed(6);
     }
@@ -916,13 +1100,263 @@
     }
 
     function escapeHtml(value) {
-      return String(value || "")
+      return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
+
+    function scopeStackMarkup(properties) {
+      const names = typeof properties.region_chain === "string"
+        ? properties.region_chain.trim().split(/\s+/).filter(Boolean) : [];
+      if (!names.length) return `<span class="scope-help">No region hierarchy is available for this region.</span>`;
+      const title = properties.draft || coordinationStatus(properties) === "proposed"
+        ? "Proposed region hierarchy" : "Mapped region hierarchy";
+      return `<span class="scope-title">${title}</span><span class="scope-stack">${names
+        .map(name => `<code class="region-code">${escapeHtml(name)}</code>`)
+        .join('<span class="scope-separator" aria-hidden="true">›</span>')}</span>
+        <span class="scope-help">When sending, select one level as the scope.</span>`;
+    }
+
+    // Polygons remain non-interactive so the existing map click and outside-
+    // SoCal navigation continue to work. Hit-test only currently visible layers.
+    const regionHoverTooltip = L.tooltip({direction: "auto", offset: [14, 0], opacity: 1, className: "region-hover-tooltip"});
+    let hoveredRegion = null;
+    let hoveredFeature = null;
+    let hoverFrame = 0;
+    let pendingHover = null;
+
+    function clearRegionHover() {
+      if (hoverFrame) cancelAnimationFrame(hoverFrame);
+      hoverFrame = 0;
+      pendingHover = null;
+      if (hoveredRegion && map.hasLayer(hoveredRegion.layer)) hoveredRegion.layer.setStyle(featureStyle);
+      hoveredRegion = null;
+      hoveredFeature = null;
+      if (map.hasLayer(regionHoverTooltip)) map.removeLayer(regionHoverTooltip);
+    }
+
+    function visibleRegionAt(latlng) {
+      const point = [latlng.lng, latlng.lat];
+      let best = null;
+      regionRecords.forEach(record => {
+        if (record.points || !map.hasLayer(record.layer) || (record.isSubregion && regionView !== "socal")) return;
+        const bounds = record.layer.getBounds();
+        if (!bounds.isValid() || !bounds.contains(latlng)) return;
+        for (const feature of record.active.data.features || []) {
+          if (isPointFeature(feature) || !pointInGeometry(point, feature.geometry)) continue;
+          const score = (record.isSubregion ? 100 : 0) + regionChainDepth(feature.properties);
+          if (!best || score > best.score) best = {record, feature, score};
+        }
+      });
+      return best;
+    }
+
+    map.on("mousemove", event => {
+      const source = event.originalEvent;
+      if (source?.buttons || source?.pointerType === "touch" || source?.target?.closest?.(".leaflet-control, .leaflet-popup, .boundary-note-hit")) {
+        clearRegionHover();
+        return;
+      }
+      pendingHover = event.latlng;
+      if (hoverFrame) return;
+      hoverFrame = requestAnimationFrame(() => {
+        hoverFrame = 0;
+        const latlng = pendingHover;
+        if (!latlng) return;
+        const hit = visibleRegionAt(latlng);
+        if (!hit) { clearRegionHover(); return; }
+        if (hoveredRegion !== hit.record || hoveredFeature !== hit.feature) {
+          if (hoveredRegion && map.hasLayer(hoveredRegion.layer)) hoveredRegion.layer.setStyle(featureStyle);
+          hoveredRegion = hit.record;
+          hoveredFeature = hit.feature;
+          hoveredRegion.layer.setStyle(feature => ({...featureStyle(feature), weight: 4, opacity: 1,
+            fillOpacity: coverageVisible ? .08 : .24}));
+          const exploreHint = regionView !== "socal" && regionId(hit.feature.properties) === "socal"
+            ? `<span class="scope-help"><strong>${regionView === "proposal" ? "Click to explore subregions" : "Click to view SoCal proposal"}</strong></span>` : "";
+          regionHoverTooltip.setContent(`<div class="region-hover-name">${escapeHtml(hit.feature.properties.name || "Region")}</div>${scopeStackMarkup(hit.feature.properties)}${exploreHint}`);
+        }
+        regionHoverTooltip.setLatLng(latlng);
+        if (!map.hasLayer(regionHoverTooltip)) regionHoverTooltip.addTo(map);
+      });
+    });
+    map.on("movestart zoomstart popupopen overlayremove", clearRegionHover);
+    L.DomEvent.on(map.getContainer(), "mouseleave", clearRegionHover);
+
+    // These display-only notes trace the proposal's shared northern edges.
+    // Their separate, transparent hit lines leave the actual region geometry intact.
+    let northernBoundaryNotes = null;
+    let activeBoundaryHighlight = null;
+    let activeBoundaryHit = null;
+
+    function clearBoundaryHighlight() {
+      if (!activeBoundaryHighlight) return;
+      activeBoundaryHighlight.forEach(layer => map.removeLayer(layer));
+      activeBoundaryHighlight = null;
+    }
+
+    function clearBoundaryInteraction(hit = activeBoundaryHit) {
+      if (!hit || hit !== activeBoundaryHit) return;
+      activeBoundaryHit = null;
+      hit.closeTooltip();
+      clearBoundaryHighlight();
+    }
+
+    function updateNorthernBoundaryNotes() {
+      const show = regionView !== "california" && !!socalLayer && map.hasLayer(socalLayer) && !!northernBoundaryNotes;
+      const hint = regionNavigation.getContainer().querySelector(".region-nav-hint");
+      hint.hidden = !show;
+      if (!northernBoundaryNotes) return;
+      if (show && !map.hasLayer(northernBoundaryNotes)) northernBoundaryNotes.addTo(map);
+      if (!show && map.hasLayer(northernBoundaryNotes)) {
+        clearBoundaryInteraction();
+        northernBoundaryNotes.eachLayer(layer => layer.closePopup());
+        map.removeLayer(northernBoundaryNotes);
+      }
+    }
+
+    function installNorthernBoundaryNotes(data) {
+      const pane = map.createPane("northernBoundaryNotes");
+      pane.style.zIndex = 625;
+      northernBoundaryNotes = L.layerGroup();
+      (data.features || []).forEach(feature => {
+        if (feature.geometry?.type !== "LineString") return;
+        const points = feature.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+        const properties = feature.properties || {};
+        const title = escapeHtml(properties.title || "Proposed boundary");
+        const description = escapeHtml(properties.description || "");
+        const content = `<div class="region-hover-name">${title}</div>
+          <div class="boundary-note-text">${description}</div>
+          <span class="scope-help">Terrain guide; RF viewsheds not verified.</span>`;
+        const lineOptions = { pane: "northernBoundaryNotes", interactive: false, lineCap: "round" };
+        const halo = L.polyline(points, { ...lineOptions, color: "#fff", opacity: 0.95, weight: 10 });
+        const highlight = L.polyline(points, { ...lineOptions, color: "#087a78", opacity: 1, weight: 5 });
+        const hit = L.polyline(points, { pane: "northernBoundaryNotes", className: "boundary-note-hit",
+          color: "#000", opacity: 0, weight: 18, bubblingMouseEvents: false });
+        const showHighlight = () => {
+          clearRegionHover();
+          if (activeBoundaryHit && activeBoundaryHit !== hit) clearBoundaryInteraction();
+          activeBoundaryHit = hit;
+          clearBoundaryHighlight();
+          halo.addTo(map);
+          highlight.addTo(map);
+          activeBoundaryHighlight = [halo, highlight];
+        };
+        hit.bindTooltip(content, { direction: "bottom", offset: [0, 16], sticky: true, opacity: 1, className: "boundary-note-tooltip" });
+        hit.bindPopup(content, { maxWidth: 280 });
+        hit.on("mouseover", showHighlight);
+        hit.on("mouseout", () => {
+          if (document.activeElement !== hit.getElement()) clearBoundaryInteraction(hit);
+        });
+        hit.on("click", () => { showHighlight(); hit.closeTooltip(); });
+        hit.on("popupclose", () => clearBoundaryInteraction(hit));
+        hit.on("add", () => {
+          const element = hit.getElement();
+          element.setAttribute("tabindex", "0");
+          element.setAttribute("role", "button");
+          element.setAttribute("aria-label", `${properties.title}. ${properties.description} Terrain guide; RF viewsheds not verified.`);
+          if (element.hasAttribute("data-note-key-bound")) return;
+          element.setAttribute("data-note-key-bound", "true");
+          L.DomEvent.on(element, "focus", () => { showHighlight(); hit.openTooltip(hit.getCenter()); });
+          L.DomEvent.on(element, "blur", () => clearBoundaryInteraction(hit));
+          L.DomEvent.on(element, "keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+              L.DomEvent.stop(event);
+              showHighlight();
+              hit.openPopup(hit.getCenter());
+            }
+          });
+        });
+        northernBoundaryNotes.addLayer(hit);
+      });
+      updateNorthernBoundaryNotes();
+    }
+
+    map.on("movestart zoomstart", () => clearBoundaryInteraction());
+    map.on("layeradd layerremove", event => {
+      if (event.layer === socalLayer) updateNorthernBoundaryNotes();
+    });
+
+    // The compressed display layers contain only generalized coverage shapes
+    // and reported path geometry. Both start off, independent of the map view.
+    async function loadSampledLayer(filename) {
+      const response = await fetch(`${regionPathPrefix}${filename}`);
+      if (!response.ok) throw new Error("Sampled layer unavailable");
+      let bytes = new Uint8Array(await response.arrayBuffer());
+      if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+        if (!("DecompressionStream" in window)) throw new Error("This browser cannot open compressed layers");
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      }
+      const data = JSON.parse(new TextDecoder().decode(bytes));
+      if (data?.type !== "FeatureCollection" || !Array.isArray(data.features)) throw new Error("Invalid sampled layer");
+      return data;
+    }
+
+    function installSampledLayers() {
+      const control = L.control({position: "topleft"});
+      const colors = ["#5803a4", "#9e1c9b", "#d25072", "#f48b47", "#fdc527"];
+      const styles = {
+        coverage: feature => ({stroke: false, fill: true,
+          fillColor: colors[Number(feature.properties?.band) - 1] || colors[0],
+          fillOpacity: Number(feature.properties?.band) === 1 ? .5 : .75}),
+        topology: {color: "#315b9a", weight: 1, opacity: .66}
+      };
+      control.onAdd = () => {
+        const div = L.DomUtil.create("section", "sampled-layers");
+        div.innerHTML = `<div class="sampled-layers-title">Sampled layers</div>
+          <label><input type="checkbox" data-sample="coverage"><span>Sampled Coverage</span></label>
+          <label><input type="checkbox" data-sample="topology"><span>Sampled Topology</span></label>
+          <div class="sampled-legend" hidden><div>Reception margin</div><div class="sampled-legend-ramp"></div>
+            <div class="sampled-legend-range"><span>−6 dB</span><span>+18 dB or more</span></div></div>
+          <p class="sampled-layers-note">927.875 MHz sample. Coverage is generalized; reported paths may not be direct RF links.</p>
+          <p class="sampled-layers-status" role="status" aria-live="polite"></p>`;
+        const legend = div.querySelector(".sampled-legend");
+        const status = div.querySelector(".sampled-layers-status");
+        div.querySelectorAll("input[data-sample]").forEach(input => {
+          const kind = input.dataset.sample;
+          const paneName = `sampled-${kind}`;
+          const pane = map.createPane(paneName);
+          pane.style.zIndex = kind === "coverage" ? "310" : "410";
+          pane.style.pointerEvents = "none";
+          let layer, pending;
+          input.addEventListener("change", async () => {
+            if (input.checked) {
+              try {
+                pending ||= loadSampledLayer(`sampled-${kind}.geojson.gz`)
+                  .then(data => layer = L.geoJSON(data, {renderer: L.canvas({pane: paneName}),
+                    interactive: false, style: styles[kind]}))
+                  .catch(error => { pending = null; throw error; });
+                await pending;
+                if (!input.checked) return;
+                layer.addTo(map);
+                status.textContent = "";
+              } catch {
+                input.checked = false;
+                status.textContent = `${input.closest("label").textContent.trim()} is unavailable.`;
+              }
+            } else if (layer) map.removeLayer(layer);
+            if (kind === "coverage") {
+              clearRegionHover();
+              coverageVisible = !!layer && map.hasLayer(layer);
+              legend.hidden = !coverageVisible;
+              regionRecords.forEach(({layer}) => layer.setStyle(featureStyle));
+            }
+          });
+        });
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+      };
+      control.addTo(map);
+
+      // Ignore legacy layer query parameters so a shared link starts with both off.
+      const url = new URL(window.location.href);
+      ["coverage", "coverageView", "coverageOpacity", "topology"].forEach(key => url.searchParams.delete(key));
+      window.history.replaceState(null, "", url);
+    }
+    installSampledLayers();
 
     function locationLabel(address) {
       if (!address) {
@@ -978,20 +1412,22 @@
             const coordinator = props.coordinator
               ? `<span>Coordinator: ${escapeHtml(props.coordinator)}</span>`
               : "";
-            const chain = props.region_chain
-              ? `<span><code class="region-code">${escapeHtml(props.region_chain)}</code></span>`
-              : "";
+            const chain = props.region_chain ? scopeStackMarkup(props) : "";
             const notes = props.notes
               ? `<span>${escapeHtml(props.notes)}</span>`
+              : "";
+            const areaCodes = Array.isArray(props.area_code_hints) && props.area_code_hints.length
+              ? `<span>Phone area code hints: ${escapeHtml(props.area_code_hints.join(" / "))} (approximate, not routing)</span>`
               : "";
             return `
               <li>
                 <span class="${swatchClass(props)}" style="color: ${color}; background-color: ${color}33"></span>
                 <div>
-                  <strong class="popup-region-name"><code class="region-code">${regionCode(props)}</code>${props.optional ? " (Optional)" : ""} - ${props.name}</strong>
-                  <span>${regionTypeLabel(props)}</span>
-                  <span class="coordination-badge ${coordinationClass(props)}">${coordinationLabel(props)}</span>
+                  <strong class="popup-region-name"><code class="region-code">${escapeHtml(regionCode(props))}</code>${props.optional ? " (Optional)" : ""} - ${escapeHtml(props.name)}</strong>
+                  <span>${escapeHtml(regionTypeLabel(props))}</span>
+                  <span class="coordination-badge ${coordinationClass(props)}">${escapeHtml(coordinationLabel(props))}</span>
                   ${chain}
+                  ${areaCodes}
                   ${notes}
                   ${coordinator}
                 </div>
@@ -1004,8 +1440,12 @@
 
     function queryRegionsAt(latlng) {
       const point = [latlng.lng, latlng.lat];
-      return loadedRegionFeatures
-        .filter((feature) => !isPointFeature(feature) && pointInGeometry(point, feature.geometry))
+      return regionRecords
+        .filter(record => !(record.proposalOnly && regionView === "california"))
+        .flatMap(({active, layer}) => (active.data.features || [])
+          .filter(feature => (!feature.properties.legacy_reference || map.hasLayer(layer))
+            && (feature.properties.overlay_group !== "subregion" || regionView === "socal")
+            && !isPointFeature(feature) && pointInGeometry(point, feature.geometry)))
         .map((feature) => feature.properties)
         .sort((a, b) => {
           if (Boolean(a.optional) !== Boolean(b.optional)) {
@@ -1024,9 +1464,8 @@
     }
 
     function localAreaPopup(properties) {
-      const color = colorFor(regionId(properties));
       const chain = properties.region_chain
-        ? `<tr><th>Chain</th><td><code class="region-code">${escapeHtml(properties.region_chain)}</code></td></tr>`
+        ? `<tr><th>Scopes</th><td>${scopeStackMarkup(properties)}</td></tr>`
         : "";
       const counties = properties.counties
         ? `<tr><th>County</th><td>${escapeHtml(properties.counties)}</td></tr>`
@@ -1058,7 +1497,19 @@
         updateShareUrl(latlng);
       }
       const matches = queryRegionsAt(latlng);
-      const popup = L.popup({ maxWidth: 420, minWidth: 320 })
+      const narrow = window.matchMedia("(max-width: 700px)").matches;
+      const maxWidth = narrow ? Math.min(320, Math.max(180, window.innerWidth - 60)) : 420;
+      const mapBounds = map.getContainer().getBoundingClientRect();
+      const topControls = map.getContainer().querySelector(".leaflet-top.leaflet-left");
+      const bottomControls = map.getContainer().querySelector(".leaflet-bottom.leaflet-left");
+      const topPadding = narrow && topControls ? Math.ceil(topControls.getBoundingClientRect().bottom - mapBounds.top + 12) : 12;
+      const bottomPadding = narrow && bottomControls ? Math.ceil(mapBounds.bottom - bottomControls.getBoundingClientRect().top + 12) : 12;
+      const maxHeight = narrow
+        ? Math.max(100, Math.min(Math.round(mapBounds.height * .4), mapBounds.height - topPadding - bottomPadding - 60))
+        : Math.max(160, Math.min(450, mapBounds.height - 120));
+      const popup = L.popup({ maxWidth, minWidth: narrow ? Math.min(280, maxWidth) : 320,
+        maxHeight, autoPanPaddingTopLeft: L.point(12, topPadding),
+        autoPanPaddingBottomRight: L.point(12, bottomPadding) })
         .setLatLng(latlng)
         .setContent(regionListPopup(latlng, matches))
         .openOn(map);
@@ -1077,18 +1528,65 @@
     }
 
     map.on("click", (event) => {
+      const point = [event.latlng.lng, event.latlng.lat];
+      const inSoCal = socalLayer?.getLayers().some(layer => pointInGeometry(point, layer.feature.geometry));
+      if (regionView === "socal" && socalLayer && !inSoCal) {
+        setRegionView("proposal");
+        return;
+      }
+      if (regionView !== "socal" && socalLayer && subregionLayers.length && map.hasLayer(socalLayer) && inSoCal) {
+        setRegionView(regionView === "california" ? "proposal" : "socal");
+        return;
+      }
       openRegionPopup(event.latlng, true);
     });
 
+    function prepareRegionData(entry, data) {
+      const points = layerHasPoints(data);
+      const { coordinator: _entryCoordinator, ...entryProperties } = entry;
+      const features = (data.features || []).map((feature) => {
+        const {
+          coordination_status: _featureCoordinationStatus,
+          coordination_label: _featureCoordinationLabel,
+          coordination_notes: _featureCoordinationNotes,
+          ...featureProperties
+        } = feature.properties || {};
+        const properties = points ? {
+          ...entryProperties,
+          ...featureProperties,
+          coordination_status: featureProperties.coordination_status || entry.coordination_status || "official_local",
+        } : {
+          ...featureProperties,
+          ...entryProperties,
+          id: entry.id,
+          coordination_status: entry.coordination_status || "extrapolated_external",
+        };
+        return {...feature, properties};
+      });
+      return { entry, data: {...data, features} };
+    }
+
     fetchJson(`${regionPathPrefix}index.json`)
-      .then((manifest) => {
+      .then(async (manifest) => {
         const index = manifest?.regions;
         if (!Array.isArray(index)) {
           throw new Error(`${regionPathPrefix}index.json must contain a regions array`);
         }
+        const comparisonAvailable = index.some(entry => entry.overlay_group === "subregion");
+        const snapshot = comparisonAvailable ? await fetchJson(`${regionPathPrefix}original-regions.json`) : {regions: []};
+        if (!Array.isArray(snapshot?.regions)) {
+          throw new Error("The original-region snapshot is unavailable");
+        }
+        const originals = new Map(snapshot.regions.map(item => [item.entry?.id, item]));
+        if (comparisonAvailable && ["socal", "centralcoast", "centralvalley", "sierranevada"]
+          .some(id => index.some(entry => entry.id === id) && !originals.has(id))) {
+          throw new Error("The original-region snapshot is incomplete");
+        }
         setMapTitle(manifest.title);
         index.forEach((entry, indexPosition) => {
-          if (!regionColors.has(entry.id)) {
+          if (entry.color) {
+            regionColors.set(entry.id, entry.color);
+          } else if (!regionColors.has(entry.id)) {
             regionColors.set(entry.id, palette[indexPosition % palette.length]);
           }
         });
@@ -1111,41 +1609,22 @@
             entry,
             data
           }));
-        }));
+        })).then(response => ({response, originals}));
       })
-      .then((response) => {
+      .then(({response, originals}) => {
         const bounds = L.latLngBounds();
         const legendRows = document.getElementById("legendRows");
+        const socalDraftRows = document.getElementById("socalDraftRows");
 
-        response.forEach(({ entry, data }) => {
+        response.forEach(({ entry, data: proposalData }) => {
+          const proposal = prepareRegionData(entry, proposalData);
+          const savedOriginal = originals.get(entry.id);
+          const original = savedOriginal ? prepareRegionData(savedOriginal.entry, savedOriginal.data || proposalData) : null;
+          const active = regionView === "california" && original ? original : proposal;
+          const data = active.data;
           const points = layerHasPoints(data);
-          const { coordinator: _entryCoordinator, ...entryProperties } = entry;
-          (data.features || []).forEach((feature) => {
-            const {
-              coordination_status: _featureCoordinationStatus,
-              coordination_label: _featureCoordinationLabel,
-              coordination_notes: _featureCoordinationNotes,
-              ...featureProperties
-            } = feature.properties || {};
-            if (points) {
-              feature.properties = {
-                ...entryProperties,
-                ...featureProperties,
-                coordination_status: featureProperties.coordination_status
-                  || entry.coordination_status
-                  || "official_local",
-              };
-            } else {
-              feature.properties = {
-                ...featureProperties,
-                // The manifest owns region identity and coordination status.
-                ...entryProperties,
-                id: entry.id,
-                coordination_status: entry.coordination_status || "extrapolated_external",
-              };
-            }
-          });
-          loadedRegionFeatures.push(...(data.features || []));
+          const isSubregion = entry.overlay_group === "subregion";
+          const proposalOnly = originals.size > 0 && !original && !isSubregion;
           const layer = L.geoJSON(data, {
             interactive: points,
             style: featureStyle,
@@ -1166,41 +1645,58 @@
               }
               : undefined
           });
-          regionLayers.push(layer);
-
-          const props = data.features?.[0]?.properties || entry;
-          const id = regionId(points ? entry : props, entry.id);
-          const color = colorFor(id);
-          overlayControl.addOverlay(layer, `${regionCode(points ? entry : props)} - ${points ? entry.name : props.name}`);
-          if (entry.visible !== false) {
+          const props = data.features?.[0]?.properties || active.entry;
+          const id = regionId(points ? active.entry : props, entry.id);
+          const record = {proposal, original, active, layer, points, isSubregion, proposalOnly,
+            currentView: regionView, proposalVisible: entry.visible !== false, legendRow: null};
+          regionRecords.push(record);
+          if (id === "socal") socalLayer = layer;
+          if (isSubregion) subregionLayers.push({ layer, properties: props });
+          else if (!(proposalOnly && regionView === "california")) overlayControl.addOverlay(layer, `${escapeHtml(regionCode(points ? active.entry : props))} - ${escapeHtml(points ? active.entry.name : props.name)}`);
+          if (!isSubregion && !(proposalOnly && regionView === "california") && active.entry.visible !== false) {
             layer.addTo(map);
             if (!points) {
               addHatchPattern(layer, props);
             }
           }
           const layerBounds = layer.getBounds();
-          if (layerBounds.isValid()) {
+          if (layerBounds.isValid() && !(proposalOnly && regionView === "california")) {
             bounds.extend(layerBounds);
           }
 
-          if (entry.legend !== false && !points) {
+          if ((isSubregion || entry.legend !== false) && !points) {
             const row = document.createElement("div");
             row.className = "legend-row";
-            row.innerHTML = `
-              <span class="${swatchClass(props)}" style="color: ${color}; background-color: ${color}33"></span>
-              <span><code class="region-code">${regionCode(props)}</code> - ${props.name}</span>
-            `;
-            legendRows.appendChild(row);
+            renderLegendRow(row, props, isSubregion);
+            row.hidden = proposalOnly && regionView === "california";
+            record.legendRow = row;
+            (isSubregion ? socalDraftRows : legendRows).appendChild(row);
           }
         });
 
+        stateBounds = bounds;
+        const navButtons = regionNavigation.getContainer().querySelectorAll("button[data-view]");
+        const hasSoCalDraft = !!socalLayer && subregionLayers.length > 0;
+        navButtons.forEach(button => {
+          button.disabled = !hasSoCalDraft;
+          button.setAttribute("aria-pressed", String(button.dataset.view === (regionView === "socal" ? "proposal" : regionView)));
+        });
+        regionNavigation.getContainer().hidden = !hasSoCalDraft;
+        legend.getContainer().querySelector(".legend-note").hidden = !hasSoCalDraft || regionView === "california";
+        if (hasSoCalDraft) {
+          fetchJson(`${regionPathPrefix}socal-boundary-notes.geojson`)
+            .then(installNorthernBoundaryNotes)
+            .catch(error => console.warn("Northern boundary notes are unavailable:", error));
+        }
         map.invalidateSize();
+        const sharedSoCal = new URLSearchParams(window.location.search).get("view") === "socal" && !!socalLayer && subregionLayers.length > 0;
+        if (sharedSoCal) setRegionView("socal", { fit: !initialSharedView, updateUrl: false });
         if (initialSharedView) {
           map.setView(initialSharedView.latlng, initialSharedView.zoom);
           openRegionPopup(initialSharedView.latlng);
-        } else if (bounds.isValid()) {
+        } else if (!sharedSoCal && bounds.isValid()) {
           map.fitBounds(bounds.pad(0.04), { animate: false });
-        } else {
+        } else if (!sharedSoCal) {
           map.setView(defaultCenter, defaultZoom, { animate: false });
         }
       })
