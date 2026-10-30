@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import geopandas as gpd
@@ -21,6 +22,7 @@ COUNTY_INPUT = TOOLS / "census_california_counties.geojson"
 STATE_INPUT = TOOLS / "census_california_state.geojson"
 SOURCE = "U.S. Census Bureau 2024 cartographic boundary files"
 SETTINGS_SOURCE = "meshcore-settings California region tree"
+DRAFT_DIR = ROOT / "data" / "socal-draft"
 
 LEVEL_TYPES = {
     "region": "Region",
@@ -304,9 +306,158 @@ def index_entry(place: dict, *, visible: bool, optional: bool = False, legend: b
     return entry
 
 
+def load_socal_draft(entries: list[dict]) -> tuple[dict, dict, dict] | None:
+    """Validate curated data before any generated outputs are replaced."""
+    by_id = {entry["id"]: entry for entry in entries}
+    region_ids = set(by_id)
+    if "socal" not in region_ids:
+        return None  # A custom, unrelated region tree must remain unchanged.
+    if len(by_id) != len(entries):
+        duplicates = sorted({entry["id"] for entry in entries if sum(e["id"] == entry["id"] for e in entries) > 1})
+        raise ValueError(f"Duplicate generated region ids: {duplicates}; use --no-socal-draft")
+    draft = json.loads((DRAFT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    draft["subregions"] = [{**draft.get("subregion_defaults", {}), **entry} for entry in draft["subregions"]]
+    collection = json.loads((DRAFT_DIR / "geometries.geojson").read_text(encoding="utf-8"))
+    required = {"socal", "centralcoast", "centralvalley", "sierranevada"}
+    missing = required - region_ids
+    if missing:
+        raise ValueError(f"SoCal draft requires {sorted(missing)}; use --no-socal-draft for a different tree")
+
+    # Validate the full set before touching either the index or generated files.
+    # Legacy areas are required only when the source tree contains them.
+    feature_ids = [feature["properties"]["id"] for feature in collection["features"]]
+    seen = set()
+    for region_id in feature_ids:
+        if region_id in seen:
+            raise ValueError(f"Duplicate SoCal draft geometry: {region_id}")
+        seen.add(region_id)
+    adjusted_legacy = {"slo", "cvsouth", "eastsierra"} & region_ids
+    required_geometries = required | adjusted_legacy | {entry["id"] for entry in draft["subregions"]}
+    missing = required_geometries - seen
+    if missing:
+        raise ValueError(f"Missing SoCal draft geometries: {sorted(missing)}")
+
+    # Check collisions and all final targets before the builder deletes old files.
+    for update in draft["updates"]:
+        previous = by_id.get(update["id"])
+        if previous:
+            if (update["id"] not in seen and "file" in update
+                    and update["file"] != previous.get("file")):
+                raise ValueError(f"SoCal draft cannot change filename for non-curated region: {update['id']}")
+            by_id[update["id"]] = {**previous, **update}
+    proposed_ids = set()
+    for proposal in draft["subregions"]:
+        if proposal["id"] in proposed_ids:
+            raise ValueError(f"Duplicate SoCal draft id: {proposal['id']}")
+        proposed_ids.add(proposal["id"])
+        previous = by_id.get(proposal["id"])
+        if previous and previous.get("overlay_group") != "subregion":
+            raise ValueError(f"SoCal draft id conflicts with an existing region: {proposal['id']}; use --no-socal-draft")
+        by_id[proposal["id"]] = proposal
+    # Reserve every generated filename, including those a draft update changes.
+    # A curated feature may overwrite its own generated file, never another's.
+    targets = {entry.get("file"): entry["id"] for entry in entries if entry.get("file")}
+    for region_id in feature_ids:
+        entry = by_id.get(region_id)
+        if not entry:  # The source tree may not contain every legacy area.
+            continue
+        filename = entry["file"]
+        if (not isinstance(filename, str) or not filename
+                or Path(filename).name != filename or Path(filename).suffix.lower() != ".geojson"):
+            raise ValueError(f"Invalid draft GeoJSON filename: {filename}")
+        if filename in targets and targets[filename] != region_id:
+            raise ValueError(f"Duplicate draft GeoJSON filename: {filename} ({targets[filename]}, {region_id})")
+        targets[filename] = region_id
+    if "socal-boundary-notes.geojson" in targets:
+        raise ValueError("Duplicate draft GeoJSON filename: socal-boundary-notes.geojson")
+    try:
+        boundary_notes = json.loads((DRAFT_DIR / "boundary-notes.geojson").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise ValueError("SoCal boundary notes are missing or invalid") from error
+    if (not isinstance(boundary_notes, dict) or boundary_notes.get("type") != "FeatureCollection"
+            or not isinstance(boundary_notes.get("features"), list)):
+        raise ValueError("SoCal boundary notes are missing or invalid")
+    features = boundary_notes["features"]
+    def valid_boundary_note(feature: object) -> bool:
+        if not isinstance(feature, dict) or feature.get("type") != "Feature":
+            return False
+        properties, geometry = feature.get("properties"), feature.get("geometry")
+        if not isinstance(properties, dict) or not isinstance(geometry, dict) or geometry.get("type") != "LineString":
+            return False
+        if any(not isinstance(properties.get(key), str) or not properties[key].strip() for key in ("id", "title", "description")):
+            return False
+        coordinates = geometry.get("coordinates")
+        if not isinstance(coordinates, list) or len(coordinates) < 2:
+            return False
+        for point in coordinates:
+            if (not isinstance(point, list) or len(point) != 2
+                    or any(not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value)
+                           for value in point)
+                    or not (-180 <= point[0] <= 180 and -90 <= point[1] <= 90)):
+                return False
+        return len({tuple(point) for point in coordinates}) >= 2
+
+    if (len(features) != 3 or not all(valid_boundary_note(feature) for feature in features)
+            or {feature["properties"].get("id") for feature in features} != {"centralcoast", "centralvalley", "sierranevada"}):
+        raise ValueError("SoCal boundary notes are missing or invalid")
+    return draft, collection, boundary_notes
+
+
+def validate_socal_compatibility(draft: dict, places: list[dict], assignments: dict[str, list[str]]) -> None:
+    """Reject trees whose county outlines do not match the curated geometry's source."""
+    baseline = draft["county_baseline"]
+    current = {place["id"]: sorted(assignments[place["id"]]) for place in places if place["depth"] == 0}
+    expected = {key: sorted(value) for key, value in baseline["top_level"].items()}
+    mismatched = sorted(key for key in current.keys() | expected.keys() if current.get(key) != expected.get(key))
+    if mismatched:
+        raise ValueError(f"SoCal draft is incompatible with county assignments for {mismatched}; use --no-socal-draft")
+
+    expected_legacy = baseline["adjusted_legacy"]
+    changed_legacy = sorted(place["id"] for place in places
+        if place["id"] in expected_legacy and sorted(place["outline"]) != sorted(expected_legacy[place["id"]]))
+    if changed_legacy:
+        raise ValueError(f"SoCal draft is incompatible with nested outlines for {changed_legacy}; use --no-socal-draft")
+
+
+def apply_socal_draft(index: dict, output: Path, *, validated_draft: tuple[dict, dict, dict] | None = None) -> None:
+    """Restore the curated draft after the county-based outputs are rebuilt."""
+    entries = index["regions"]
+    by_id = {entry["id"]: entry for entry in entries}
+    data = validated_draft if validated_draft is not None else load_socal_draft(entries)
+    if data is None:
+        return
+    draft, collection, boundary_notes = data
+
+    index.update(draft.get("metadata", {}))
+    for update in draft["updates"]:
+        if update["id"] in by_id:
+            by_id[update["id"]].update(update)
+    for proposal in draft["subregions"]:
+        previous = by_id.get(proposal["id"])
+        if previous:
+            previous.update(proposal)
+        else:
+            entries.append(proposal.copy())
+            by_id[proposal["id"]] = entries[-1]
+    for feature in collection["features"]:
+        region_id = feature["properties"]["id"]
+        entry = by_id.get(region_id)
+        if not entry:  # The source tree may not contain every legacy area.
+            continue
+        filename = entry["file"]
+        (output / filename).write_text(
+            json.dumps({"type": "FeatureCollection", "features": [feature]}, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+    (output / "socal-boundary-notes.geojson").write_text(
+        json.dumps(boundary_notes, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--regions", type=Path, help="Path to meshcore-settings regions.json")
+    parser.add_argument("--no-socal-draft", action="store_true", help="Generate the original county-based boundaries without the SoCal draft")
     args = parser.parse_args()
 
     if not COUNTY_INPUT.exists() or not STATE_INPUT.exists():
@@ -315,8 +466,40 @@ def main() -> None:
     regions_path = regions_json_path(args.regions)
     tree = load_tree(regions_path)
     places = flatten_places(tree)
+    top_level_counties = assign_top_level_counties(places)
+    polygon_places = []
+    for place in places:
+        names = counties_for(place, top_level_counties)
+        if names:
+            polygon_places.append((place, names))
+    generated_entries = [{"id": "california", "file": "california.geojson"}] + [
+        {"id": place["id"], "file": f"{place['id']}.geojson"} for place, _ in polygon_places
+    ]
+    validated_draft = None if args.no_socal_draft else load_socal_draft(generated_entries)
+    if validated_draft is not None:
+        validate_socal_compatibility(validated_draft[0], places, top_level_counties)
     counties = gpd.read_file(COUNTY_INPUT).to_crs(4326)
     state = gpd.read_file(STATE_INPUT).to_crs(4326)
+
+    census_county_names = set(counties["NAME"])
+    assigned_names = [name for names in top_level_counties.values() for name in names]
+    duplicates = sorted({name for name in assigned_names if assigned_names.count(name) > 1})
+    if duplicates:
+        raise ValueError(f"Top-level regions overlap: {duplicates}")
+    missing = sorted(census_county_names - set(assigned_names))
+    extra = sorted(set(assigned_names) - census_county_names)
+    if missing or extra:
+        raise ValueError(
+            "Top-level county assignment does not match California: "
+            + ", ".join(
+                part
+                for part in (
+                    f"unassigned: {missing}" if missing else "",
+                    f"unknown: {extra}" if extra else "",
+                )
+                if part
+            )
+        )
 
     OUT.mkdir(parents=True, exist_ok=True)
     for old_output in OUT.glob("*.geojson"):
@@ -346,34 +529,6 @@ def main() -> None:
         )
     )
 
-    top_level_counties = assign_top_level_counties(places)
-    census_county_names = set(counties["NAME"])
-    assigned_names = [name for names in top_level_counties.values() for name in names]
-    duplicates = sorted({name for name in assigned_names if assigned_names.count(name) > 1})
-    if duplicates:
-        raise ValueError(f"Top-level regions overlap: {duplicates}")
-    missing = sorted(census_county_names - set(assigned_names))
-    extra = sorted(set(assigned_names) - census_county_names)
-    if missing or extra:
-        raise ValueError(
-            "Top-level county assignment does not match California: "
-            + ", ".join(
-                part
-                for part in (
-                    f"unassigned: {missing}" if missing else "",
-                    f"unknown: {extra}" if extra else "",
-                )
-                if part
-            )
-        )
-
-    polygon_places = []
-    for place in places:
-        names = counties_for(place, top_level_counties)
-        if not names:
-            continue
-        polygon_places.append((place, names))
-
     for place, names in polygon_places:
         geometry = dissolve(select_counties(counties, names, place["id"]))
         region = polygon_record(place, tree, geometry, names)
@@ -390,16 +545,18 @@ def main() -> None:
             )
         )
 
-    (OUT / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
+    if not args.no_socal_draft:
+        apply_socal_draft(index, OUT, validated_draft=validated_draft)
+    (OUT / "index.json").write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
 
     report = [
         "# California MeshCore region build",
         "",
         f"- Source: `{regions_path}`",
         f"- Places in tree: {len(places)}",
-        f"- Polygon layers: {len(polygon_places) + 1}",
+        f"- Polygon layers: {len(index['regions'])}",
         "",
-        "Top-level regions (non-overlapping):",
+        "County assignments before applying the SoCal draft:",
     ]
     for place in places:
         if place["depth"] == 0:
