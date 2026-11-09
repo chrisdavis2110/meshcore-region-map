@@ -36,6 +36,21 @@ class OriginalSnapshotTests(unittest.TestCase):
         proposal = json.loads((ROOT / 'public' / 'regions' / 'socal.geojson').read_text())
         self.assertNotEqual(original['features'][0]['geometry'], proposal['features'][0]['geometry'])
 
+    def test_original_socal_includes_eastern_kern_ridgeline(self):
+        """Original keeps the Tehachapi/El Paso redraw (Ridgecrest / CA-14 / Frazier)."""
+        from shapely.geometry import Point, shape
+
+        saved = json.loads(SNAPSHOT.read_text())
+        socal = shape(next(item['data'] for item in saved['regions'] if item['entry']['id'] == 'socal')['features'][0]['geometry'])
+        for name, point in {
+            'Ridgecrest': Point(-117.67, 35.62),
+            'Inyokern': Point(-117.812, 35.647),
+            'Edwards': Point(-117.88, 34.91),
+            'Frazier Mountain Park Road': Point(-118.912, 34.825),
+        }.items():
+            with self.subTest(place=name):
+                self.assertTrue(socal.contains(point), f'{name} should be inside Original SoCal')
+
 
 if __name__ == '__main__':
     unittest.main()

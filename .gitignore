@@ -2,5 +2,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+node_modules/
+region-tools/cache/
 region-tools/census_*.geojson
 region-tools/validation_report.md

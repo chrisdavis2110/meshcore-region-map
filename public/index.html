@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>California MeshCore Region Map</title>
+  <title>WC Mesh region maps</title>
   <meta
     name="description"
-    content="Interactive MeshCore region boundaries for California, built from the meshcore-settings region tree."
+    content="Combined list of MeshCore region scopes for California, the Pacific Northwest, and the Intermountain West."
   >
   <style>
     :root {
@@ -16,17 +16,12 @@
       --border: #d6dee8;
       --bg: #f6f8fb;
       --card: #fff;
+      --code: #0f766e;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-    }
+    html, body { margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
@@ -37,142 +32,185 @@
 
     main {
       margin: 0 auto;
-      max-width: 880px;
-      padding: 4rem 1.5rem 5rem;
+      max-width: 980px;
+      padding: 3.5rem 1.5rem 5rem;
     }
 
     h1 {
-      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-size: clamp(2rem, 6vw, 3.25rem);
       line-height: 1.05;
-      margin: 0 0 1rem;
+      margin: 0 0 0.8rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      margin: 0;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      margin: 1.1rem 0 0.35rem;
     }
 
     .lead {
       color: var(--muted);
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       max-width: 42rem;
     }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin: 1.75rem 0 2.5rem;
-    }
-
-    a.button {
-      background: #0f766e;
-      border-radius: 8px;
-      color: #fff;
-      display: inline-block;
-      font-weight: 650;
-      padding: 0.8rem 1.1rem;
-      text-decoration: none;
-    }
-
-    a.button.secondary {
-      background: #fff;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .grid {
+    .maps {
       display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 1.5rem 0 2rem;
     }
 
-    article {
+    a.map-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1.15rem 1.2rem;
+      color: inherit;
+      display: block;
+      padding: 1rem 1.05rem;
+      text-decoration: none;
     }
 
-    article h2 {
-      font-size: 1.05rem;
-      margin: 0 0 0.55rem;
+    a.map-card strong {
+      display: block;
+      margin-bottom: 0.25rem;
     }
 
-    article p,
-    article li {
+    a.map-card span {
       color: var(--muted);
-      margin: 0;
+      font-size: 0.92rem;
     }
 
-    article ul {
-      margin: 0.4rem 0 0;
-      padding-left: 1.15rem;
+    section.region-map {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin: 0 0 1rem;
+      padding: 1.1rem 1.2rem 1.25rem;
+    }
+
+    section.region-map > p {
+      color: var(--muted);
+      margin: 0.4rem 0 0.2rem;
+    }
+
+    .group-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin: 0.15rem 0 0.2rem;
+    }
+
+    ul.scopes {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    ul.scopes a {
+      align-items: baseline;
+      border-radius: 6px;
+      color: inherit;
+      display: flex;
+      gap: 0.7rem;
+      padding: 0.18rem 0.4rem;
+      text-decoration: none;
+    }
+
+    ul.scopes a:hover {
+      background: #eef3f8;
     }
 
     code {
-      background: #eef2f7;
-      border-radius: 4px;
-      font-size: 0.92em;
-      padding: 0.1em 0.35em;
+      color: var(--code);
+      font-size: 0.86rem;
+      min-width: 9.5rem;
     }
 
-    @media (max-width: 720px) {
-      main {
-        padding-top: 2.5rem;
-      }
+    .kind {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
 
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    .error { color: #9f1239; }
+
+    @media (max-width: 800px) {
+      main { padding-top: 2.2rem; }
+      .maps { grid-template-columns: 1fr; }
+      code { min-width: 6.5rem; }
+      .kind { display: none; }
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>California MeshCore Region Map</h1>
+    <h1>WC Mesh region maps</h1>
     <p class="lead">
-      This is a standalone Leaflet viewer for the California MeshCore region
-      tree. It uses the New England Mesh region-map UI, with boundaries generated
-      from U.S. Census counties claimed by
-      <a href="https://github.com/matkam/meshcore-settings">meshcore-settings</a>.
+      Every scope on this site, across California, the Pacific Northwest, and the Intermountain West.
+      Open a map to see the boundaries.
     </p>
-    <div class="actions">
-      <a class="button" href="regions/map.html">Open the region map</a>
-      <a class="button secondary" href="https://matkam.github.io/meshcore-settings/">Open the settings picker</a>
-    </div>
-    <div class="grid">
-      <article>
-        <h2>What the map shows</h2>
-        <p>
-          Click anywhere to list every MeshCore region containing that point.
-          Top-level regions are on by default. Nested areas can be turned on
-          from the layer control.
-        </p>
-      </article>
-      <article>
-        <h2>Region layers</h2>
-        <ul>
-          <li><code>norcal</code> North California</li>
-          <li><code>sacramentofoothills</code> Sacramento Foothills</li>
-          <li><code>sierranevada</code> Sierra Nevada</li>
-          <li><code>bayarea</code> San Francisco Bay Area</li>
-          <li><code>centralcoast</code> Central Coast</li>
-          <li><code>centralvalley</code> Central Valley</li>
-          <li><code>socal</code> Southern California</li>
-        </ul>
-      </article>
-      <article>
-        <h2>How boundaries are built</h2>
-        <p>
-          Top-level regions are a partition of California counties, with no
-          overlap. Nested areas keep their own outlines, including
-          <code>cvsouth</code> covering Kings, Tulare, and Kern.
-        </p>
-      </article>
-      <article>
-        <h2>Nested areas</h2>
-        <p>
-          County-level areas such as <code>orange</code> stay in the layer
-          control so you can turn them on without cluttering the default map.
-        </p>
-      </article>
-    </div>
+    <div class="maps" id="maps"></div>
+    <div id="directory"><p class="lead">Loading the region list…</p></div>
   </main>
+  <script>
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[character]));
+    }
+
+    function scopeHref(map, row) {
+      return `${map.href}/#${encodeURIComponent(row.id)}`;
+    }
+
+    function render(catalog) {
+      document.getElementById("maps").innerHTML = catalog.maps.map((map) => `
+        <a class="map-card" href="${escapeHtml(map.href)}">
+          <strong>${escapeHtml(map.title)}</strong>
+          <span>Open the map</span>
+        </a>
+      `).join("");
+
+      document.getElementById("directory").innerHTML = catalog.maps.map((map) => `
+        <section class="region-map" id="${escapeHtml(map.id)}">
+          <h2><a href="${escapeHtml(map.href)}">${escapeHtml(map.title)}</a></h2>
+          <p>${escapeHtml(map.summary)}${map.source ? ` <a href="${escapeHtml(map.source)}">Source tree</a>.` : ""}</p>
+          ${map.groups.map((group) => `
+            <h3>${escapeHtml(group.title)}</h3>
+            ${group.note ? `<p class="group-note">${escapeHtml(group.note)}</p>` : ""}
+            <ul class="scopes">
+              ${group.rows.map((row) => `
+                <li>
+                  <a href="${escapeHtml(scopeHref(map, row))}" style="padding-left:${0.4 + (row.depth || 0) * 0.85}rem">
+                    <code>${escapeHtml(row.code)}</code>
+                    <span>${escapeHtml(row.name)}</span>
+                    <span class="kind">${escapeHtml(row.kind || "")}</span>
+                  </a>
+                </li>
+              `).join("")}
+            </ul>
+          `).join("")}
+        </section>
+      `).join("");
+    }
+
+    fetch("/catalog.json", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`${response.status}`);
+        return response.json();
+      })
+      .then(render)
+      .catch((error) => {
+        document.getElementById("directory").innerHTML = `<p class="error">Could not load the region list (${escapeHtml(error.message)}).</p>`;
+      });
+  </script>
 </body>
 </html>

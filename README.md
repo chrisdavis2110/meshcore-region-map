@@ -1,9 +1,10 @@
-# California MeshCore Region Map
+# WC Mesh region maps
 
-Standalone Leaflet map of the California MeshCore region tree. It reuses the
+Static maps of MeshCore region scopes. The California map reuses the
 [New England Mesh](https://newenglandme.sh/regions/map) region-map viewer and
 builds polygons from the places in
-[meshcore-settings](https://github.com/matkam/meshcore-settings).
+[meshcore-settings](https://github.com/matkam/meshcore-settings). The Pacific
+Northwest and Intermountain West maps are county-line previews.
 
 The site is static HTML plus GeoJSON. Serve the `public/` folder locally, then
 deploy that same folder later.
@@ -16,18 +17,20 @@ If `public/regions/` already contains `index.json` and GeoJSON files:
 python3 -m http.server 8080 --directory public
 ```
 
-Then open [http://localhost:8080/](http://localhost:8080/) or
-[http://localhost:8080/regions/map.html](http://localhost:8080/regions/map.html).
+Then open [http://localhost:8080/](http://localhost:8080/). That page lists every
+scope. The maps are [California](http://localhost:8080/california),
+[Pacific Northwest](http://localhost:8080/pnw), and
+[Intermountain West](http://localhost:8080/imw).
 
-Do not open `map.html` as a `file://` URL. The viewer fetches JSON, so it needs
-an HTTP server.
+Do not open the map pages as `file://` URLs. The viewers fetch JSON, so they
+need an HTTP server.
 
-## What is on the map
+## What is on the California map
 
 - **Region map** switches between **Original** and **SoCal proposal**. Original
   uses the region geometry and labels saved from upstream revision
   `85a26cfc2e39`. The proposal first shows the statewide map with the revised
-  SoCal region highlighted. Click SoCal to reveal its 17 draft subdivisions;
+  SoCal region highlighted. Click SoCal to reveal its 10 draft subdivisions;
   click outside SoCal or select **State view** to return to the statewide
   proposal. Select **Original** to compare the upstream boundaries. Links
   preserve the selected view and any clicked location.
@@ -82,10 +85,10 @@ frequency, obstructions and traffic should inform revisions.
 The revised Santa Maria and Nipomo estimate sums native 30-arc-second cells
 whose centers fall inside that draft polygon.
 
-The key proposes descriptive MeshCore names such as `socal-sfv`, `socal-sgv`
-and `socal-oc`. Telephone area codes are approximate mnemonics, not boundaries
+The key proposes descriptive MeshCore names such as `sfv`, `sgv`
+and `oc`. Telephone area codes are approximate mnemonics, not boundaries
 or routing aliases: 818 and 747 overlap, while 805/820 cover several proposed
-regions. Exact scope names must be coordinated; `818` and `socal-sfv` are
+regions. Exact scope names must be coordinated; `818` and `sfv` are
 different names, not interchangeable aliases. The displayed `region_chain`
 describes a proposed configuration hierarchy, not a route string automatically
 transmitted by the protocol.
@@ -97,7 +100,7 @@ check each device's capacity before adopting a full set of subdivisions. See
 
 In current MeshCore, names derive transport keys and scoped packets carry
 fixed-size transport codes. The optional transport-code fields total four bytes,
-so using `818` rather than `socal-sfv` does not reduce that packet header;
+so using `818` rather than `sfv` does not reduce that packet header;
 name length may still matter in configuration or messages that include it. See
 the [packet format](https://github.com/meshcore-dev/MeshCore/blob/main/docs/packet_format.md),
 [region matching](https://github.com/meshcore-dev/MeshCore/blob/main/src/helpers/RegionMap.cpp),
@@ -124,10 +127,9 @@ edit those source files when revising the proposal so rebuilds preserve changes.
 The northern boundary notes in `boundary-notes.geojson` should be updated when
 their traced edges change.
 Shared subregion fields live in `manifest.json`'s `subregion_defaults`; generated
-JSON is compact. The Original comparison reuses unchanged GeoJSON files and
-stores only changed files in `original-regions.json`. If another region changes,
-save its original data there first; the snapshot test checks against the saved
-upstream revision.
+JSON is compact. The California map loads `public/regions/` as the sole geometry
+source (no Original / SoCal proposal toggle). `original-regions.json` remains
+only for the snapshot regression test against a saved upstream revision.
 Before replacing files, the builder checks that the source tree's top-level
 county assignments and affected nested outlines match the draft's saved
 baseline. A custom tree that changes them needs revised geometries and baseline,

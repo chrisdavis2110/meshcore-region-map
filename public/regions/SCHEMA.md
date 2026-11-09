@@ -86,14 +86,13 @@ allow a coordinator to operate their own GeoJSON endpoint:
 
 `index.json` is strict JSON, so do not add comments to it.
 
-When a `socal` layer and `subregion` entries are present, the viewer opens in
-the **Original** statewide view. Select **SoCal proposal** to highlight the revised
-parent region, then click it to reveal subdivisions. **State view** or a click
-outside SoCal returns to the statewide proposal. Set `visible: false` and `legend: false` on subdivision
+When a `socal` layer and `subregion` entries are present, click SoCal on the
+map to reveal subdivisions. **State view** or a click outside SoCal returns to
+the statewide map. Set `visible: false` and `legend: false` on subdivision
 entries for compatibility with generic viewers. A shared URL can include
-`view=proposal` or `view=socal`, as well as the existing `lat`, `lng`, and
-`z` parameters for an inspected location. The drill-in is disabled if the
-manifest does not contain both the parent and subdivisions.
+`view=socal`, as well as the existing `lat`, `lng`, and `z` parameters for an
+inspected location. The drill-in is disabled if the manifest does not contain
+both the parent and subdivisions.
 
 ## GeoJSON files
 

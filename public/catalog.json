@@ -1,0 +1,1269 @@
+{
+  "title": "WC Mesh region maps",
+  "maps": [
+    {
+      "id": "california",
+      "href": "/california",
+      "title": "California",
+      "summary": "MeshCore repeater region scopes for California, as a tree of nested places.",
+      "source": "https://github.com/matkam/meshcore-settings/blob/main/data/regions.yaml",
+      "groups": [
+        {
+          "title": "meshcore-settings tree",
+          "note": "From matkam/meshcore-settings data/regions.yaml. Root tokens prefix every chain. Draft SoCal subregions sit under Southern California after the county references.",
+          "rows": [
+            {
+              "id": "us",
+              "code": "us",
+              "name": "United States",
+              "depth": 0,
+              "kind": "root"
+            },
+            {
+              "id": "west",
+              "code": "west",
+              "name": "Western US",
+              "depth": 1,
+              "kind": "root"
+            },
+            {
+              "id": "california",
+              "code": "california",
+              "name": "California",
+              "depth": 2,
+              "kind": "root"
+            },
+            {
+              "id": "norcal",
+              "code": "norcal",
+              "name": "North California",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "delnorte",
+              "code": "delnorte",
+              "name": "Del Norte County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "humboldt",
+              "code": "humboldt",
+              "name": "Humboldt County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "trinity",
+              "code": "trinity",
+              "name": "Trinity County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "mendocino",
+              "code": "mendocino",
+              "name": "Mendocino County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "lakecounty",
+              "code": "lakecounty",
+              "name": "Lake County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "siskiyou",
+              "code": "siskiyou",
+              "name": "Siskiyou County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "modoc",
+              "code": "modoc",
+              "name": "Modoc County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "shasta",
+              "code": "shasta",
+              "name": "Shasta County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "lassen",
+              "code": "lassen",
+              "name": "Lassen County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "tehama",
+              "code": "tehama",
+              "name": "Tehama County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "plumas",
+              "code": "plumas",
+              "name": "Plumas County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "butte",
+              "code": "butte",
+              "name": "Butte County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "glenn",
+              "code": "glenn",
+              "name": "Glenn County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "colusa",
+              "code": "colusa",
+              "name": "Colusa County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sierracounty",
+              "code": "sierracounty",
+              "name": "Sierra County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sacramentofoothills",
+              "code": "sacramentofoothills",
+              "name": "Sacramento Foothills",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "sacramento",
+              "code": "sacramento",
+              "name": "Sacramento County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "yolo",
+              "code": "yolo",
+              "name": "Yolo County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "placer",
+              "code": "placer",
+              "name": "Placer County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "yubasutter",
+              "code": "yubasutter",
+              "name": "Yuba-Sutter",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "nevadacounty",
+              "code": "nevadacounty",
+              "name": "Nevada County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sierranevada",
+              "code": "sierranevada",
+              "name": "Sierra Nevada",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "goldcountry",
+              "code": "goldcountry",
+              "name": "Gold Country",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "eldorado",
+              "code": "eldorado",
+              "name": "El Dorado County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "amador",
+              "code": "amador",
+              "name": "Amador County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "calaveras",
+              "code": "calaveras",
+              "name": "Calaveras County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "tuolumne",
+              "code": "tuolumne",
+              "name": "Tuolumne County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "mariposa",
+              "code": "mariposa",
+              "name": "Mariposa County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "tahoe",
+              "code": "tahoe",
+              "name": "Lake Tahoe",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "eastsierra",
+              "code": "eastsierra",
+              "name": "Eastern Sierra",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "bayarea",
+              "code": "bayarea",
+              "name": "San Francisco Bay Area",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "sf",
+              "code": "sf",
+              "name": "San Francisco",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "northbay",
+              "code": "northbay",
+              "name": "North Bay",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "marin",
+              "code": "marin",
+              "name": "Marin County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "sonoma",
+              "code": "sonoma",
+              "name": "Sonoma County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "napa",
+              "code": "napa",
+              "name": "Napa County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "solano",
+              "code": "solano",
+              "name": "Solano County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "eastbay",
+              "code": "eastbay",
+              "name": "East Bay",
+              "depth": 4,
+              "kind": "area"
+            },
+            {
+              "id": "contracosta",
+              "code": "contracosta",
+              "name": "Contra Costa County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "alameda",
+              "code": "alameda",
+              "name": "Alameda County",
+              "depth": 5,
+              "kind": "county"
+            },
+            {
+              "id": "peninsula",
+              "code": "peninsula",
+              "name": "Peninsula",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "southbay",
+              "code": "southbay",
+              "name": "South Bay",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "centralcoast",
+              "code": "centralcoast",
+              "name": "Central Coast",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "santacruz",
+              "code": "santacruz",
+              "name": "Santa Cruz County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "monterey",
+              "code": "monterey",
+              "name": "Monterey County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sanbenito",
+              "code": "sanbenito",
+              "name": "San Benito County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "slo",
+              "code": "slo",
+              "name": "SLO County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "slonorth",
+              "code": "slonorth",
+              "name": "North County",
+              "depth": 5,
+              "kind": "local area"
+            },
+            {
+              "id": "slocity",
+              "code": "slocity",
+              "name": "San Luis Obispo",
+              "depth": 5,
+              "kind": "local area"
+            },
+            {
+              "id": "esterobay",
+              "code": "esterobay",
+              "name": "Estero Bay",
+              "depth": 5,
+              "kind": "local area"
+            },
+            {
+              "id": "slosouth",
+              "code": "slosouth",
+              "name": "South County",
+              "depth": 5,
+              "kind": "local area"
+            },
+            {
+              "id": "centralvalley",
+              "code": "centralvalley",
+              "name": "Central Valley",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "sanjoaquin",
+              "code": "sanjoaquin",
+              "name": "San Joaquin County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "stanislaus",
+              "code": "stanislaus",
+              "name": "Stanislaus County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "merced",
+              "code": "merced",
+              "name": "Merced County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "madera",
+              "code": "madera",
+              "name": "Madera County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "fresno",
+              "code": "fresno",
+              "name": "Fresno County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "kingscounty",
+              "code": "kingscounty",
+              "name": "Kings County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "tulare",
+              "code": "tulare",
+              "name": "Tulare County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "kern",
+              "code": "kern",
+              "name": "Kern County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "socal",
+              "code": "socal",
+              "name": "Southern California",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "santabarbara",
+              "code": "santabarbara",
+              "name": "Santa Barbara County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "ventura",
+              "code": "ventura",
+              "name": "Ventura County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "losangeles",
+              "code": "losangeles",
+              "name": "Los Angeles County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "orange",
+              "code": "orange",
+              "name": "Orange County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sanbernardino",
+              "code": "sanbernardino",
+              "name": "San Bernardino County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "riverside",
+              "code": "riverside",
+              "name": "Riverside County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "imperial",
+              "code": "imperial",
+              "name": "Imperial County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "sandiego",
+              "code": "sandiego",
+              "name": "San Diego County",
+              "depth": 4,
+              "kind": "county"
+            },
+            {
+              "id": "coachella",
+              "code": "coachella",
+              "name": "Coachella Valley",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "conejo",
+              "code": "conejo",
+              "name": "Conejo & Simi Valleys",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "highdesert",
+              "code": "highdesert",
+              "name": "Antelope & High Desert",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "inlandempire",
+              "code": "ie",
+              "name": "Inland Empire",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "mojave",
+              "code": "mojave",
+              "name": "Eastern Mojave",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "santaclarita",
+              "code": "scv",
+              "name": "Santa Clarita Valley",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "sfvalley",
+              "code": "sfv",
+              "name": "San Fernando Valley",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "sgv",
+              "code": "sgv",
+              "name": "San Gabriel & Pomona Valleys",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "santamaria",
+              "code": "smv",
+              "name": "Santa Maria & Nipomo",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "lasouthbay",
+              "code": "southbay",
+              "name": "South Bay & Long Beach",
+              "depth": 4,
+              "kind": "draft subregion"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pnw",
+      "href": "/pnw",
+      "title": "Pacific Northwest",
+      "summary": "County-line guess for the Pacific Northwest hierarchy. Regional scopes tile Washington and Oregon. City scopes cover the named communities. Southern British Columbia is the Lower Mainland and Vancouver Island, Montana is the northwest corner, and Idaho shows the panhandle, Lewis-Clark, Coeur d'Alene, and Boise.",
+      "groups": [
+        {
+          "title": "Washington",
+          "note": null,
+          "rows": [
+            {
+              "id": "west",
+              "code": "west",
+              "name": "Western US / SW Canada",
+              "depth": 0,
+              "kind": "backbone"
+            },
+            {
+              "id": "pnw",
+              "code": "pnw",
+              "name": "Pacific Northwest",
+              "depth": 1,
+              "kind": "backbone"
+            },
+            {
+              "id": "wa",
+              "code": "wa",
+              "name": "Washington",
+              "depth": 2,
+              "kind": "state"
+            },
+            {
+              "id": "w-wa",
+              "code": "w-wa",
+              "name": "Western Washington",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "sea",
+              "code": "sea",
+              "name": "Seattle / Tacoma / Bellevue",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "oly",
+              "code": "oly",
+              "name": "Olympia / Lacey / Tumwater",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "kit",
+              "code": "kit",
+              "name": "Kitsap / Bremerton / Silverdale",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "grh",
+              "code": "grh",
+              "name": "Grays Harbor / WA coast",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "bvs",
+              "code": "bvs",
+              "name": "Skagit Valley / Mount Vernon / Anacortes",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "bli",
+              "code": "bli",
+              "name": "Bellingham / Whatcom County",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "sw-wa",
+              "code": "sw-wa",
+              "name": "Southwest Washington",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "cls",
+              "code": "cls",
+              "name": "Centralia / Chehalis",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "kls",
+              "code": "kls",
+              "name": "Kelso / Longview",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "c-wa",
+              "code": "c-wa",
+              "name": "Central Washington",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "ykm",
+              "code": "ykm",
+              "name": "Yakima",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "eat",
+              "code": "eat",
+              "name": "Wenatchee",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "eln",
+              "code": "eln",
+              "name": "Ellensburg",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "eph",
+              "code": "eph",
+              "name": "Ephrata",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "e-wa",
+              "code": "e-wa",
+              "name": "Eastern Washington",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "geg",
+              "code": "geg",
+              "name": "Spokane metro",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "wsu",
+              "code": "wsu",
+              "name": "WSU Pullman campus",
+              "depth": 4,
+              "kind": "campus"
+            },
+            {
+              "id": "se-wa",
+              "code": "se-wa",
+              "name": "Southeastern Washington",
+              "depth": 3,
+              "kind": "region"
+            },
+            {
+              "id": "alw",
+              "code": "alw",
+              "name": "Walla Walla",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "puw",
+              "code": "puw",
+              "name": "Pullman (Whitman, Asotin, Garfield)",
+              "depth": 4,
+              "kind": "local"
+            },
+            {
+              "id": "psc",
+              "code": "psc",
+              "name": "Tri-Cities / Pasco / Kennewick / Richland",
+              "depth": 4,
+              "kind": "local"
+            }
+          ]
+        },
+        {
+          "title": "Oregon",
+          "note": null,
+          "rows": [
+            {
+              "id": "or",
+              "code": "or",
+              "name": "Oregon",
+              "depth": 1,
+              "kind": "state"
+            },
+            {
+              "id": "pdx",
+              "code": "pdx",
+              "name": "Portland metro (OR + Clark County WA)",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "wv",
+              "code": "wv",
+              "name": "Willamette Valley",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "mmv",
+              "code": "mmv",
+              "name": "McMinnville / Yamhill",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "sle",
+              "code": "sle",
+              "name": "Salem / Keizer",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "cvo",
+              "code": "cvo",
+              "name": "Corvallis / Albany",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "eug",
+              "code": "eug",
+              "name": "Eugene / Springfield",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "s-or",
+              "code": "s-or",
+              "name": "Southern Oregon",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "mfr",
+              "code": "mfr",
+              "name": "Medford / Ashland",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "rbg",
+              "code": "rbg",
+              "name": "Roseburg",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "lmt",
+              "code": "lmt",
+              "name": "Klamath Falls",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "coast-or",
+              "code": "coast-or",
+              "name": "Oregon Coast",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "ast",
+              "code": "ast",
+              "name": "Astoria / Seaside",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "otk",
+              "code": "otk",
+              "name": "Tillamook",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "onp",
+              "code": "onp",
+              "name": "Newport / Lincoln City",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "oth",
+              "code": "oth",
+              "name": "North Bend / Coos Bay",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "c-or",
+              "code": "c-or",
+              "name": "Central Oregon",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "bend",
+              "code": "bend",
+              "name": "Bend / Redmond",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "pdt",
+              "code": "pdt",
+              "name": "Pendleton",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "bke",
+              "code": "bke",
+              "name": "Baker City",
+              "depth": 3,
+              "kind": "local"
+            }
+          ]
+        },
+        {
+          "title": "British Columbia, Montana, cross-border",
+          "note": null,
+          "rows": [
+            {
+              "id": "bc",
+              "code": "bc",
+              "name": "British Columbia (southern)",
+              "depth": 1,
+              "kind": "state"
+            },
+            {
+              "id": "swbc",
+              "code": "swbc",
+              "name": "Southwest BC / Lower Mainland",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "vanisle",
+              "code": "vanisle",
+              "name": "Vancouver Island",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "southisland",
+              "code": "southisland",
+              "name": "South Vancouver Island / Victoria",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "salishmesh",
+              "code": "salishmesh",
+              "name": "Salish Sea / Gulf Islands",
+              "depth": 2,
+              "kind": "overlay"
+            },
+            {
+              "id": "mt",
+              "code": "mt",
+              "name": "Montana (partial)",
+              "depth": 1,
+              "kind": "region"
+            },
+            {
+              "id": "fca",
+              "code": "fca",
+              "name": "Flathead Valley / Kalispell / Glacier",
+              "depth": 2,
+              "kind": "local"
+            },
+            {
+              "id": "inw",
+              "code": "inw",
+              "name": "Inland Northwest",
+              "depth": 1,
+              "kind": "overlay"
+            },
+            {
+              "id": "palouse",
+              "code": "palouse",
+              "name": "Palouse",
+              "depth": 1,
+              "kind": "overlay"
+            }
+          ]
+        },
+        {
+          "title": "Idaho scopes in this hierarchy",
+          "note": null,
+          "rows": [
+            {
+              "id": "id",
+              "code": "id",
+              "name": "Idaho",
+              "depth": 1,
+              "kind": "state"
+            },
+            {
+              "id": "n-id",
+              "code": "n-id",
+              "name": "Northern Idaho (Moscow, Lewiston, Clearwater)",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "lws",
+              "code": "lws",
+              "name": "Lewiston / Moscow / Clearwater",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "uofi",
+              "code": "uofi",
+              "name": "University of Idaho, Moscow campus",
+              "depth": 3,
+              "kind": "campus"
+            },
+            {
+              "id": "cda",
+              "code": "cda",
+              "name": "Coeur d'Alene / N. Idaho panhandle",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "boi",
+              "code": "boi",
+              "name": "Boise, Meridian, Nampa, Caldwell",
+              "depth": 2,
+              "kind": "local"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "imw",
+      "href": "/imw",
+      "title": "Intermountain West",
+      "summary": "County-line guess for the Utah and Idaho trees. Regional scopes tile each state. City scopes cover the named communities. The panhandle names come from the Pacific Northwest hierarchy. Boise is the Idaho scope that also carries pnw.",
+      "groups": [
+        {
+          "title": "Utah",
+          "note": null,
+          "rows": [
+            {
+              "id": "imw",
+              "code": "imw",
+              "name": "Intermountain West",
+              "depth": 0,
+              "kind": "backbone"
+            },
+            {
+              "id": "ut",
+              "code": "ut",
+              "name": "Utah",
+              "depth": 1,
+              "kind": "state"
+            },
+            {
+              "id": "wf",
+              "code": "wf",
+              "name": "Wasatch Front",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "ogd",
+              "code": "ogd",
+              "name": "Ogden, Layton, Bountiful, Plain City",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "slc",
+              "code": "slc",
+              "name": "Salt Lake City, Draper, West Jordan",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "utc",
+              "code": "utc",
+              "name": "Lehi, Provo, Santaquin",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "wb",
+              "code": "wb",
+              "name": "Wasatch Back: Park City, Heber, Vernal",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "n-ut",
+              "code": "n-ut",
+              "name": "Brigham City, Logan, Tremonton",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "c-ut",
+              "code": "c-ut",
+              "name": "Nephi, Moab, Beaver, Richfield",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "s-ut",
+              "code": "s-ut",
+              "name": "Southern Utah",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "ced",
+              "code": "ced",
+              "name": "Cedar City",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "stg",
+              "code": "stg",
+              "name": "St. George",
+              "depth": 3,
+              "kind": "local"
+            }
+          ]
+        },
+        {
+          "title": "Idaho",
+          "note": "Panhandle and Palouse, from the Pacific Northwest hierarchy",
+          "rows": [
+            {
+              "id": "pnw-boi",
+              "code": "pnw-boi",
+              "name": "Pacific Northwest \u2014 Boise only",
+              "depth": 0,
+              "kind": "alias"
+            },
+            {
+              "id": "imw",
+              "code": "imw",
+              "name": "Intermountain West",
+              "depth": 0,
+              "kind": "backbone"
+            },
+            {
+              "id": "id",
+              "code": "id",
+              "name": "Idaho",
+              "depth": 1,
+              "kind": "state"
+            },
+            {
+              "id": "sw-id",
+              "code": "sw-id",
+              "name": "Southwest Idaho",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "boi",
+              "code": "boi",
+              "name": "Boise, Meridian, Nampa, Caldwell",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "s-id",
+              "code": "s-id",
+              "name": "Southern Idaho",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "twf",
+              "code": "twf",
+              "name": "Twin Falls, Gooding, Jerome, Mini-Cassia, Magic Valley",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "sun",
+              "code": "sun",
+              "name": "Sun Valley, Blaine County",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "e-id",
+              "code": "e-id",
+              "name": "Eastern Idaho",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "pih",
+              "code": "pih",
+              "name": "Pocatello, Chubbuck, Malad, Soda Springs",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "ida",
+              "code": "ida",
+              "name": "Idaho Falls, Blackfoot",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "mad",
+              "code": "mad",
+              "name": "Rexburg",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "n-id",
+              "code": "n-id",
+              "name": "Northern Idaho (Moscow, Lewiston, Clearwater)",
+              "depth": 2,
+              "kind": "region"
+            },
+            {
+              "id": "lws",
+              "code": "lws",
+              "name": "Lewiston / Moscow / Clearwater",
+              "depth": 3,
+              "kind": "local"
+            },
+            {
+              "id": "uofi",
+              "code": "uofi",
+              "name": "University of Idaho, Moscow campus",
+              "depth": 3,
+              "kind": "campus"
+            },
+            {
+              "id": "cda",
+              "code": "cda",
+              "name": "Coeur d'Alene / N. Idaho panhandle",
+              "depth": 2,
+              "kind": "region"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -20,9 +20,14 @@ TOOLS = Path(__file__).resolve().parent
 OUT = ROOT / "public" / "regions"
 COUNTY_INPUT = TOOLS / "census_california_counties.geojson"
 STATE_INPUT = TOOLS / "census_california_state.geojson"
+WESTERN_STATES_INPUT = TOOLS / "census_western_states.geojson"
 SOURCE = "U.S. Census Bureau 2024 cartographic boundary files"
 SETTINGS_SOURCE = "meshcore-settings California region tree"
 DRAFT_DIR = ROOT / "data" / "socal-draft"
+# Continental states west of the Rocky Mountains (Pacific + Intermountain).
+WESTERN_STATE_CODES = ("WA", "OR", "CA", "NV", "AZ", "ID", "UT")
+# Root tokens emitted as map layers. `us` stays a chain prefix only.
+MAP_ROOT_CODES = frozenset({"west", "california"})
 
 LEVEL_TYPES = {
     "region": "Region",
@@ -32,24 +37,16 @@ LEVEL_TYPES = {
 
 # meshcore-settings leaves some counties only on local areas or nested outlines
 # that would otherwise overlap a sibling. These extras are map-only.
-OUTLINE_EXTRAS = {
-    "cvsouth": ["Kern"],
-}
+OUTLINE_EXTRAS = {}
 
-OUTLINE_REMOVALS = {
-    "goldcountry": ["Sierra"],
-}
+OUTLINE_REMOVALS = {}
 
-ID_OVERRIDES = {
-    "oc": "orange",
-    "orangecounty": "orange",
-}
+# Keep map ids identical to settings codes so the homepage tree and map match.
+ID_OVERRIDES = {}
 
 # Counties that a top-level region should own even when another region's
 # outline or nested tree would claim them. These extras win first.
-TOP_LEVEL_EXTRAS = {
-    "sacramentofoothills": ["Butte", "Sierra", "Nevada"],
-}
+TOP_LEVEL_EXTRAS = {}
 
 
 def adjusted_outline(code: str, names: list[str]) -> list[str]:
@@ -72,8 +69,8 @@ def regions_json_path(explicit: Path | None) -> Path:
         candidates.append(explicit)
     candidates.extend(
         [
-            ROOT.parent / "meshcore-settings" / "data" / "regions.json",
             ROOT / "data" / "regions.json",
+            ROOT.parent / "meshcore-settings" / "data" / "regions.json",
         ]
     )
     for path in candidates:
@@ -142,7 +139,13 @@ def flatten_places(tree: dict) -> list[dict]:
 def counties_for(place: dict, top_level_counties: dict[str, list[str]] | None = None) -> list[str]:
     if place["depth"] == 0 and top_level_counties is not None:
         return list(top_level_counties.get(place["id"], []))
-    return list(place["outline"])
+    if place["outline"]:
+        return list(place["outline"])
+    # Areas/counties may name counties without an outline (Lake Tahoe).
+    # Local areas with lat/lon stay points instead of filling the parent county.
+    if place["county"] and place["kind"] != "local area":
+        return list(place["county"])
+    return []
 
 
 def top_level_id(place: dict) -> str | None:
@@ -266,17 +269,64 @@ def polygon_record(place: dict, tree: dict, geometry: gpd.GeoDataFrame, county_n
     ]
 
 
-def california_record(state: gpd.GeoDataFrame, tree: dict) -> gpd.GeoDataFrame:
-    region = dissolve(state[["geometry"]])
-    region["id"] = "california"
-    region["name"] = "California"
-    region["short_name"] = "CALIFORNIA"
-    region["kind"] = "state_region"
-    region["region_type"] = "State Region"
-    region["boundary_basis"] = "Existing political boundary represented by a U.S. Census state boundary"
-    region["notes"] = "Statewide umbrella for the meshcore-settings California tree."
-    root = [item["code"] for item in tree.get("root") or [] if item.get("code")]
-    region["region_chain"] = " ".join(root) if root else "california"
+def point_feature_collection(place: dict, tree: dict) -> dict:
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "id": place["id"],
+                    "name": place["name"],
+                    "short_name": place["short_name"],
+                    "kind": place["kind"],
+                    "depth": place["depth"],
+                    "region_type": region_type_for(place["kind"]),
+                    "boundary_basis": "Representative point from meshcore-settings",
+                    "notes": place["blurb"],
+                    "region_chain": chain_for(place, tree),
+                    "counties": ", ".join(place["county"]),
+                    "draft": False,
+                    "source": SETTINGS_SOURCE,
+                    "coordinator": "",
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [float(place["lon"]), float(place["lat"])],
+                },
+            }
+        ],
+    }
+
+
+def root_scope_record(
+    geometry: gpd.GeoDataFrame, item: dict, chain: list[str]
+) -> gpd.GeoDataFrame:
+    code = item["code"]
+    name = item.get("name") or code
+    region = dissolve(geometry[["geometry"]])
+    region["id"] = code
+    region["name"] = name
+    region["short_name"] = code.upper().replace("-", "")
+    if code == "california":
+        region["kind"] = "state_region"
+        region["region_type"] = "State Region"
+        region["notes"] = "Statewide umbrella for the meshcore-settings California tree."
+        region["boundary_basis"] = (
+            "Existing political boundary represented by a U.S. Census state boundary"
+        )
+    else:
+        region["kind"] = "root"
+        region["region_type"] = "Root Scope"
+        region["notes"] = (
+            "Root scope from meshcore-settings. Outline of Washington, Oregon, "
+            "California, Nevada, Arizona, Idaho, and Utah — states west of the "
+            "Rocky Mountains."
+        )
+        region["boundary_basis"] = (
+            "U.S. Census state boundaries for states west of the Rocky Mountains"
+        )
+    region["region_chain"] = " ".join(chain) if chain else code
     region["counties"] = ""
     region["draft"] = False
     region["source"] = SOURCE
@@ -285,7 +335,11 @@ def california_record(state: gpd.GeoDataFrame, tree: dict) -> gpd.GeoDataFrame:
 
 
 def index_entry(place: dict, *, visible: bool, optional: bool = False, legend: bool = True) -> dict:
-    status = "official_local" if place["id"] != "california" else "political_boundaries"
+    status = (
+        "political_boundaries"
+        if place.get("kind") in {"state_region", "root"} or place["id"] == "california"
+        else "official_local"
+    )
     entry = {
         "id": place["id"],
         "name": place["name"],
@@ -419,6 +473,102 @@ def validate_socal_compatibility(draft: dict, places: list[dict], assignments: d
         raise ValueError(f"SoCal draft is incompatible with nested outlines for {changed_legacy}; use --no-socal-draft")
 
 
+def apply_eastern_kern_ridgeline(output: Path) -> None:
+    """Move eastern Kern (Ridgecrest / Edwards / Mojave) from Central Valley onto SoCal.
+
+    County lines put all of Kern in Central Valley. The curated SoCal draft
+    follows the Tehachapi / El Paso ridgeline instead; reuse that cut so the
+    desert side of the ridge maps with SoCal.
+    """
+    from shapely.geometry import Polygon, box, mapping, shape
+    from shapely.ops import unary_union
+
+    draft_path = DRAFT_DIR / "geometries.geojson"
+    if not draft_path.is_file():
+        return
+    needed = ("socal", "centralvalley", "kern")
+    paths = {region_id: output / f"{region_id}.geojson" for region_id in needed}
+    if not all(path.is_file() for path in paths.values()):
+        return
+
+    draft = json.loads(draft_path.read_text(encoding="utf-8"))
+    socal_draft = next(
+        (shape(feature["geometry"]) for feature in draft["features"] if feature["properties"]["id"] == "socal"),
+        None,
+    )
+    if socal_draft is None:
+        return
+
+    def load(region_id: str):
+        path = paths[region_id]
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return path, data, shape(data["features"][0]["geometry"])
+
+    socal_path, socal_data, socal = load("socal")
+    cv_path, cv_data, cv = load("centralvalley")
+    kern_path, kern_data, kern = load("kern")
+
+    pocket = kern.intersection(socal_draft).buffer(0)
+    # Pull west through Red Rock Canyon / Inyokern so CA-14 stays inside SoCal
+    # up to the East Sierra / Kern corner. Keep a straight western edge so the
+    # map boundary does not zig-zag where the corridor meets the ridgeline cut.
+    ca14_corridor = Polygon(
+        [
+            (-118.055, 35.28),
+            (-117.85, 35.28),
+            (-117.63, 35.62),
+            (-117.63, 35.81),
+            (-118.055, 35.81),
+            (-118.055, 35.28),
+        ]
+    )
+    ca14_pocket = kern.intersection(ca14_corridor).buffer(0)
+    # Leftover Kern stub over China Lake NWC, south of East Sierra.
+    china_lake = kern.intersection(box(-117.85, 35.60, -117.55, 35.81)).buffer(0)
+    pocket = unary_union([g for g in (pocket, ca14_pocket, china_lake) if not g.is_empty]).buffer(0)
+
+    socal = unary_union([socal, pocket]).buffer(0) if not pocket.is_empty else socal
+    cv = cv.difference(pocket).buffer(0) if not pocket.is_empty else cv
+    kern = kern.difference(pocket).buffer(0) if not pocket.is_empty else kern
+
+    # Flatten only the Grapevine V (I-5) to a straight cut just above Frazier
+    # Mountain Park Road. Keep the window between the V's natural cut-latitude
+    # crossings — a wider box leaves vertical stubs on the clip edges.
+    cut = 34.838
+    west, east = -118.931, -118.831
+    north_of_cut = box(west, cut, east, 35.05)
+    south_of_cut = box(west, 34.70, east, cut)
+    add = unary_union([cv, kern]).intersection(south_of_cut).difference(socal).buffer(0)
+    remove = socal.intersection(north_of_cut).buffer(0)
+    socal = unary_union([socal, add]).difference(remove).buffer(0)
+    # Drop any interior rings left by the V/cut (they render as tiny yellow islands).
+    if socal.geom_type == "Polygon":
+        socal = Polygon(socal.exterior).buffer(0)
+    elif socal.geom_type == "MultiPolygon":
+        socal = unary_union([Polygon(part.exterior) for part in socal.geoms]).buffer(0)
+    cv = cv.difference(socal).buffer(0)
+    kern = kern.difference(socal).buffer(0)
+
+    note = (
+        "Map boundary follows the Tehachapi/El Paso ridgeline: eastern Kern "
+        "(Ridgecrest, Edwards, Mojave, Inyokern / CA-14, China Lake NWC) is drawn with SoCal. "
+        "Straight cut just above Frazier Mountain Park Road at the Grapevine."
+    )
+
+    def save(path: Path, data: dict, geometry) -> None:
+        feature = data["features"][0]
+        feature["geometry"] = mapping(geometry)
+        props = feature["properties"]
+        existing = props.get("notes") or ""
+        if note not in existing:
+            props["notes"] = f"{existing} {note}".strip()
+        path.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
+
+    save(socal_path, socal_data, socal)
+    save(cv_path, cv_data, cv)
+    save(kern_path, kern_data, kern)
+
+
 def apply_socal_draft(index: dict, output: Path, *, validated_draft: tuple[dict, dict, dict] | None = None) -> None:
     """Restore the curated draft after the county-based outputs are rebuilt."""
     entries = index["regions"]
@@ -468,18 +618,45 @@ def main() -> None:
     places = flatten_places(tree)
     top_level_counties = assign_top_level_counties(places)
     polygon_places = []
+    point_places = []
     for place in places:
         names = counties_for(place, top_level_counties)
         if names:
             polygon_places.append((place, names))
-    generated_entries = [{"id": "california", "file": "california.geojson"}] + [
+        elif place.get("lat") is not None and place.get("lon") is not None:
+            point_places.append(place)
+    root_items = [item for item in tree.get("root") or [] if item.get("code")]
+    if not any(item["code"] == "california" for item in root_items):
+        root_items = root_items + [{"code": "california", "name": "California"}]
+    map_root_items = [item for item in root_items if item["code"] in MAP_ROOT_CODES]
+    if not any(item["code"] == "west" for item in map_root_items):
+        map_root_items = [{"code": "west", "name": "Western US"}, *map_root_items]
+    if not any(item["code"] == "california" for item in map_root_items):
+        map_root_items = [*map_root_items, {"code": "california", "name": "California"}]
+    generated_entries = [
+        {"id": item["code"], "file": f"{item['code']}.geojson"} for item in map_root_items
+    ] + [
         {"id": place["id"], "file": f"{place['id']}.geojson"} for place, _ in polygon_places
+    ] + [
+        {"id": place["id"], "file": f"{place['id']}.geojson"} for place in point_places
     ]
     validated_draft = None if args.no_socal_draft else load_socal_draft(generated_entries)
     if validated_draft is not None:
         validate_socal_compatibility(validated_draft[0], places, top_level_counties)
+    if not WESTERN_STATES_INPUT.exists():
+        raise FileNotFoundError(
+            f"Missing {WESTERN_STATES_INPUT.name}; run build_census_boundaries.py first"
+        )
     counties = gpd.read_file(COUNTY_INPUT).to_crs(4326)
     state = gpd.read_file(STATE_INPUT).to_crs(4326)
+    western_states = gpd.read_file(WESTERN_STATES_INPUT).to_crs(4326)
+    if "STUSPS" in western_states.columns:
+        western_states = western_states[western_states["STUSPS"].isin(WESTERN_STATE_CODES)]
+        missing_west = sorted(set(WESTERN_STATE_CODES) - set(western_states["STUSPS"]))
+        if missing_west:
+            raise ValueError(f"Western states input is missing: {missing_west}")
+    elif len(western_states) == 0:
+        raise ValueError("Western states input is empty")
 
     census_county_names = set(counties["NAME"])
     assigned_names = [name for names in top_level_counties.values() for name in names]
@@ -512,41 +689,72 @@ def main() -> None:
         "regions": [],
     }
 
-    california = california_record(state, tree)
-    write_geojson(california, OUT / "california.geojson")
-    index["regions"].append(
-        index_entry(
-            {
-                "id": "california",
-                "name": "California",
-                "short_name": "CALIFORNIA",
-                "kind": "state_region",
-                "region_type": "State Region",
-            },
-            visible=False,
-            optional=True,
-            legend=False,
+    for item in map_root_items:
+        # Keep full settings root prefixes in the chain even when `us` has no layer.
+        chain_codes = [entry["code"] for entry in root_items]
+        if item["code"] in chain_codes:
+            chain = chain_codes[: chain_codes.index(item["code"]) + 1]
+        else:
+            chain = [item["code"]]
+        geometry = western_states if item["code"] == "west" else state
+        record = root_scope_record(geometry, item, chain)
+        write_geojson(record, OUT / f"{item['code']}.geojson")
+        kind = "state_region" if item["code"] == "california" else "root"
+        region_type = "State Region" if item["code"] == "california" else "Root Scope"
+        index["regions"].append(
+            index_entry(
+                {
+                    "id": item["code"],
+                    "name": item.get("name") or item["code"],
+                    "short_name": item["code"].upper().replace("-", ""),
+                    "kind": kind,
+                    "region_type": region_type,
+                },
+                visible=False,
+                optional=True,
+                legend=False,
+            )
         )
-    )
 
     for place, names in polygon_places:
         geometry = dissolve(select_counties(counties, names, place["id"]))
         region = polygon_record(place, tree, geometry, names)
         write_geojson(region, OUT / f"{place['id']}.geojson")
         is_top_level = place["depth"] == 0
+        entry = index_entry(
+            {
+                **place,
+                "region_type": region_type_for(place["kind"]),
+            },
+            visible=is_top_level,
+            legend=is_top_level,
+        )
+        if is_top_level:
+            entry["overlay_group"] = "region"
+        index["regions"].append(entry)
+
+    for place in point_places:
+        (OUT / f"{place['id']}.geojson").write_text(
+            json.dumps(point_feature_collection(place, tree), separators=(",", ":"), ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
         index["regions"].append(
             index_entry(
                 {
                     **place,
                     "region_type": region_type_for(place["kind"]),
                 },
-                visible=is_top_level,
-                legend=is_top_level,
+                visible=False,
+                legend=False,
             )
         )
 
     if not args.no_socal_draft:
         apply_socal_draft(index, OUT, validated_draft=validated_draft)
+    # Always apply: CA-14 / Inyokern, China Lake, and the Frazier cut. Draft
+    # geometries should already include this redraw; re-running keeps --no-socal-draft
+    # and any stale draft copy aligned.
+    apply_eastern_kern_ridgeline(OUT)
     (OUT / "index.json").write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
 
     report = [

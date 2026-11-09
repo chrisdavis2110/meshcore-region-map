@@ -1,0 +1,1925 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>California MeshCore Region Map</title>
+  <meta
+    name="description"
+    content="Interactive MeshCore region boundaries for California, built from the meshcore-settings region tree."
+  >
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="California MeshCore Region Map">
+  <meta
+    property="og:description"
+    content="Interactive MeshCore region boundaries for California, built from the meshcore-settings region tree."
+  >
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="California MeshCore Region Map">
+  <meta
+    name="twitter:description"
+    content="Interactive MeshCore region boundaries for California, built from the meshcore-settings region tree."
+  >
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIINfQorGC6w5t2EWPMKdbTNOSpR4T9zD9M="
+    crossorigin=""
+  >
+  <style>
+    .leaflet-pane,
+    .leaflet-tile,
+    .leaflet-marker-icon,
+    .leaflet-marker-shadow,
+    .leaflet-tile-container,
+    .leaflet-pane > svg,
+    .leaflet-pane > canvas,
+    .leaflet-zoom-box,
+    .leaflet-image-layer,
+    .leaflet-layer {
+      left: 0;
+      position: absolute;
+      top: 0;
+    }
+
+    .leaflet-container {
+      background: #d8e2e8;
+      overflow: hidden;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .leaflet-map-pane {
+      z-index: 400;
+    }
+
+    .leaflet-tile-pane {
+      z-index: 200;
+    }
+
+    .leaflet-overlay-pane {
+      z-index: 400;
+    }
+
+    .leaflet-shadow-pane {
+      z-index: 500;
+    }
+
+    .leaflet-marker-pane {
+      z-index: 600;
+    }
+
+    .leaflet-tooltip-pane {
+      z-index: 650;
+    }
+
+    .leaflet-popup-pane {
+      z-index: 700;
+    }
+
+    .leaflet-tile,
+    .leaflet-marker-icon,
+    .leaflet-marker-shadow {
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .leaflet-tile {
+      filter: inherit;
+      visibility: hidden;
+    }
+
+    .leaflet-tile-loaded {
+      visibility: inherit;
+    }
+
+    .leaflet-zoom-animated {
+      transform-origin: 0 0;
+    }
+
+    .leaflet-interactive {
+      cursor: pointer;
+    }
+
+    .leaflet-pane > svg path.leaflet-interactive {
+      pointer-events: visiblePainted;
+    }
+
+    .leaflet-control {
+      clear: both;
+      float: left;
+      pointer-events: auto;
+      position: relative;
+      z-index: 800;
+    }
+
+    .leaflet-top,
+    .leaflet-bottom {
+      pointer-events: none;
+      position: absolute;
+      z-index: 1000;
+    }
+
+    .leaflet-top {
+      top: 0;
+    }
+
+    .leaflet-right {
+      right: 0;
+    }
+
+    .leaflet-bottom {
+      bottom: 0;
+    }
+
+    .leaflet-left {
+      left: 0;
+    }
+
+    .leaflet-top .leaflet-control {
+      margin-top: 10px;
+    }
+
+    .leaflet-bottom .leaflet-control {
+      margin-bottom: 10px;
+    }
+
+    .leaflet-left .leaflet-control {
+      margin-left: 10px;
+    }
+
+    .leaflet-right .leaflet-control {
+      float: right;
+      margin-right: 10px;
+    }
+
+    .leaflet-control-layers,
+    .leaflet-bar {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+    }
+
+    .leaflet-bar a {
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+      color: #000;
+      display: block;
+      font: bold 20px/34px Arial, Helvetica, sans-serif;
+      height: 34px;
+      text-align: center;
+      text-decoration: none;
+      width: 34px;
+    }
+
+    .leaflet-control-layers {
+      padding: 6px 8px;
+      max-width: min(400px, calc(100vw - 24px));
+    }
+
+    .leaflet-control-layers-list {
+      max-height: min(60vh, 420px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .leaflet-control-layers-toggle { display: none; }
+
+    .leaflet-control-layers.panel-collapsed {
+      max-height: none;
+      max-width: none;
+      overflow: visible;
+      padding: 6px;
+      width: auto;
+    }
+
+    .leaflet-control-layers.panel-collapsed > *:not(.layer-actions),
+    .leaflet-control-layers.panel-collapsed .leaflet-control-layers-list,
+    .leaflet-control-layers.panel-collapsed .leaflet-control-layers-overlays,
+    .leaflet-control-layers.panel-collapsed .leaflet-control-layers-base,
+    .leaflet-control-layers.panel-collapsed .leaflet-control-layers-separator,
+    .leaflet-control-layers.panel-collapsed .layer-actions-title,
+    .leaflet-control-layers.panel-collapsed .select-action,
+    .leaflet-control-layers.panel-collapsed .deselect-action {
+      display: none;
+    }
+
+    .leaflet-control-layers label {
+      display: block;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .leaflet-control-layers .layer-actions {
+      align-items: center;
+      border-bottom: 1px solid #d7dee7;
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+    }
+
+    .layer-actions-title {
+      color: #1e293b;
+      flex: 1;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .leaflet-control-layers.panel-collapsed .layer-actions {
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .leaflet-control-layers.panel-collapsed .layer-actions button {
+      min-width: 4.25rem;
+      width: auto;
+    }
+
+    .leaflet-control-layers .layer-actions button {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      color: #1e293b;
+      cursor: pointer;
+      font: 12px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 5px 8px;
+    }
+
+    .leaflet-control-layers .layer-actions button:hover {
+      background: #e2e8f0;
+    }
+
+    .leaflet-popup {
+      margin-bottom: 20px;
+      position: absolute;
+      text-align: center;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+      padding: 1px;
+      position: relative;
+      text-align: left;
+    }
+
+    .leaflet-popup-content {
+      line-height: 1.3;
+      margin: 13px 19px;
+    }
+    .leaflet-popup-scrolled { overflow: auto; overscroll-behavior: contain; }
+
+    .leaflet-popup-close-button {
+      color: #475569;
+      font: 20px/20px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      height: 20px;
+      position: absolute;
+      right: 5px;
+      text-align: center;
+      text-decoration: none;
+      top: 5px;
+      width: 20px;
+      z-index: 1;
+    }
+
+    .leaflet-popup-close-button:hover {
+      color: #0f172a;
+    }
+
+    html,
+    body,
+    #map {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .legend {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid #d6e0e7;
+      border-radius: 12px;
+      box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
+      color: #16202a;
+      max-height: min(52vh, 420px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 10px 12px;
+    }
+
+    .legend.panel-collapsed {
+      overflow: visible;
+      padding: 6px;
+    }
+
+    .legend h2 {
+      align-items: center;
+      background: #fff;
+      display: flex;
+      font-size: 13px;
+      gap: 10px;
+      justify-content: space-between;
+      margin: 0 0 8px;
+      padding-bottom: 6px;
+      position: sticky;
+      top: -10px;
+      z-index: 1;
+    }
+
+    .legend.panel-collapsed h2 {
+      margin: 0;
+      padding-bottom: 0;
+    }
+
+    .legend.panel-collapsed h2 [data-map-title] { display: none; }
+
+    .legend.panel-collapsed #legendRows {
+      display: none;
+    }
+
+    .legend-note, .socal-key-note {
+      color: #475569;
+      font-size: 11px;
+      margin: 0 0 8px;
+      max-width: 300px;
+      white-space: normal;
+    }
+
+    .legend.panel-collapsed .legend-note,
+    .legend.panel-collapsed #socalDraftKey {
+      display: none;
+    }
+
+    .socal-key-title { font-size: 12px; margin: 10px 0 4px; }
+    .legend-row small { color: #475569; display: block; white-space: normal; }
+    .region-nav {
+      background: rgba(255, 255, 255, 0.97); border: 1px solid #d6e0e7;
+      border-radius: 10px; box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16); padding: 7px;
+    }
+    .region-nav button {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px;
+      color: #1e293b; cursor: pointer; font: 600 12px/1.2 system-ui, sans-serif;
+      min-height: 32px; padding: 5px 9px; width: 100%;
+    }
+    .sampled-layers {
+      background: rgba(255, 255, 255, 0.97); border: 1px solid #d6e0e7;
+      border-radius: 12px; box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
+      box-sizing: border-box; color: #172b38; font: 12px/1.4 system-ui, sans-serif;
+      padding: 10px 12px; width: min(245px, calc(100vw - 24px));
+    }
+    .sampled-layers-title { color: #526876; font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .sampled-layers label { align-items: center; cursor: pointer; display: flex; font-size: 13px; font-weight: 700; gap: 8px; min-height: 30px; }
+    .sampled-layers input { accent-color: #087b78; height: 16px; margin: 0; width: 16px; }
+    .sampled-layers-note, .sampled-layers-status { color: #526876; font-size: 11px; margin: 4px 0 0; }
+    .sampled-layers-status:empty { display: none; }
+    .sampled-legend { color: #526876; font-size: 10px; margin-top: 7px; }
+    .sampled-legend[hidden] { display: none; }
+    .sampled-legend-ramp { background: linear-gradient(to right, #5803a4, #9e1c9b, #d25072, #f48b47, #fdc527); border-radius: 3px; height: 7px; margin: 3px 0; }
+    .sampled-legend-range { display: flex; justify-content: space-between; }
+    .sampled-layers :focus-visible,
+    .legend :focus-visible,
+    .region-nav :focus-visible,
+    .tree-panel :focus-visible {
+      outline: 3px solid #199a9a;
+      outline-offset: 2px;
+    }
+
+    .panel-toggle {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      color: #1e293b;
+      cursor: pointer;
+      flex: 0 0 auto;
+      font: 12px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-width: 2.25rem;
+      padding: 5px 7px;
+    }
+
+    .panel-toggle:hover {
+      background: #e2e8f0;
+    }
+
+    .tree-panel {
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid #d6e0e7;
+      border-radius: 12px;
+      box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
+      color: #16202a;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: min(58vh, 520px);
+      overflow: hidden;
+      padding: 10px 12px;
+      width: min(360px, calc(100vw - 24px));
+    }
+
+    .tree-panel.panel-collapsed {
+      max-height: none;
+      overflow: visible;
+      padding: 6px;
+      width: auto;
+    }
+
+    .tree-panel.panel-collapsed .tree-panel-body,
+    .tree-panel.panel-collapsed .tree-panel-heading {
+      display: none;
+    }
+
+    .tree-panel-header {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .tree-panel-heading {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .tree-panel-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .trees {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .tree-card,
+    .tree-detail {
+      background: #fff;
+      border: 1px solid #d6e0e7;
+      border-radius: 10px;
+      padding: 0.7rem 0.65rem 0.6rem;
+    }
+
+    .tree-card h2,
+    .tree-detail h2 {
+      font-size: 12px;
+      margin: 0 0 0.35rem;
+    }
+
+    .tree-heading {
+      color: #526876;
+      font-size: 11px;
+      line-height: 1.35;
+      margin: 0.65rem 0.25rem 0.2rem;
+    }
+
+    .tree-row {
+      align-items: baseline;
+      background: transparent;
+      border: 0;
+      border-radius: 6px;
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      font: inherit;
+      gap: 0.5rem;
+      line-height: 1.35;
+      padding: 0.14rem 0.35rem;
+      text-align: left;
+      width: 100%;
+    }
+
+    .tree-row code {
+      color: #0f766e;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      font-weight: 750;
+      min-width: 3rem;
+    }
+
+    .tree-row span {
+      font-size: 0.86rem;
+    }
+
+    .tree-row:hover,
+    .tree-row.is-hot {
+      background: #e8efff;
+    }
+
+    .tree-row.is-active {
+      background: #dff6f2;
+    }
+
+    .tree-swatch {
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px rgba(15, 35, 48, 0.22);
+      display: inline-block;
+      flex: 0 0 auto;
+      height: 0.65rem;
+      transform: translateY(0.05rem);
+      width: 0.65rem;
+    }
+
+    .tree-detail {
+      flex: 0 0 auto;
+      max-height: 34%;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .tree-detail p,
+    .tree-detail li {
+      color: #526876;
+      font-size: 0.84rem;
+      margin: 0.3rem 0 0;
+    }
+
+    .tree-detail ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .tree-chain {
+      list-style: none;
+      margin: 0.4rem 0 0;
+      padding: 0;
+    }
+
+    .tree-chain li {
+      margin: 0;
+    }
+
+    .tree-chain code {
+      color: #0f766e;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 750;
+    }
+
+    .legend-row {
+      align-items: center;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 18px 1fr;
+      font-size: 12px;
+      margin: 5px 0;
+      white-space: nowrap;
+    }
+
+    .legend-region-name,
+    .popup-region-name {
+      display: block;
+    }
+
+    .coordination-badge {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      color: #334155;
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.2;
+      margin-top: 3px;
+      padding: 2px 5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .coordination-badge.official-new-england {
+      background: #dff6f2;
+      border-color: #99e6d9;
+      color: #075e54;
+    }
+
+    .coordination-badge.official-local {
+      background: #dff6f2;
+      border-color: #99e6d9;
+      color: #075e54;
+    }
+
+    .coordination-badge.coordinated-external {
+      background: #e8efff;
+      border-color: #bdd0ff;
+      color: #1e3a8a;
+    }
+
+    .coordination-badge.political-boundaries {
+      background: #f0e7ff;
+      border-color: #d8bfff;
+      color: #5b21b6;
+    }
+
+    .coordination-badge.proposed {
+      background: #fff7ed;
+      border-color: #fdba74;
+      color: #9a3412;
+    }
+
+    .coordination-badge.extrapolated-external {
+      background: #fff4dc;
+      border-color: #f4cf86;
+      color: #7c4a03;
+    }
+
+    .region-code {
+      background: #eef2f7;
+      border: 1px solid #d6dee8;
+      border-radius: 4px;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      padding: 1px 4px;
+      white-space: nowrap;
+    }
+
+    .region-hover-tooltip.leaflet-tooltip {
+      background: rgba(255, 255, 255, 0.98); border: 1px solid #d6e0e7;
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(15, 35, 48, 0.18);
+      box-sizing: border-box; color: #172b38; font: 12px/1.4 system-ui, sans-serif;
+      max-width: calc(100vw - 24px); padding: 10px 12px; pointer-events: none;
+      white-space: normal; width: 250px;
+    }
+    .region-hover-tooltip.leaflet-tooltip::before { display: none; }
+    .region-hover-name { color: #102c3b; font-size: 13px; font-weight: 750; margin: 0 0 5px; }
+    .scope-title { color: #526876; display: block; font-size: 10px; font-weight: 700; letter-spacing: .05em; margin: 5px 0; text-transform: uppercase; }
+    .scope-stack { align-items: center; display: flex; flex-wrap: wrap; gap: 4px; }
+    .scope-separator { color: #81939d; font-size: 13px; }
+    .scope-help { color: #526876; display: block; font-size: 11px; margin-top: 6px; }
+
+    .swatch {
+      border: 2px solid currentColor;
+      border-radius: 3px;
+      height: 12px;
+      opacity: 0.85;
+      width: 14px;
+    }
+
+    .swatch.extrapolated-external {
+      background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 3px,
+        currentColor 3px,
+        currentColor 5px
+      );
+    }
+
+    .swatch.proposed {
+      background-image: repeating-linear-gradient(
+        315deg,
+        transparent 0,
+        transparent 3px,
+        currentColor 3px,
+        currentColor 5px
+      );
+    }
+
+    .swatch.proposed.draft {
+      background-image: none;
+      border-style: dashed;
+    }
+
+    .popup-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .popup-table {
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .popup-table th {
+      color: #536271;
+      font-weight: 600;
+      padding: 2px 8px 2px 0;
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    .popup-table td {
+      padding: 2px 0;
+      vertical-align: top;
+    }
+
+    .region-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+    }
+
+    .region-list li {
+      align-items: center;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 16px 1fr;
+      margin: 5px 0;
+    }
+
+    .region-list strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .region-list span {
+      color: #536271;
+      display: block;
+      font-size: 12px;
+    }
+    .region-list .scope-stack { display: flex; }
+    .region-list .scope-separator { display: inline; color: #81939d; }
+    .region-list .scope-title { font-size: 10px; }
+    .region-list .scope-help { font-size: 11px; }
+
+    .error {
+      background: #fff3f0;
+      border-left: 4px solid #c8372d;
+      color: #43120e;
+      font-size: 14px;
+      left: 50%;
+      max-width: 560px;
+      padding: 12px 14px;
+      position: fixed;
+      top: 16px;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    @media (max-width: 700px) {
+      .leaflet-right .leaflet-control,
+      .leaflet-left .leaflet-control {
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+
+      .leaflet-control-layers {
+        max-width: calc(100vw - 24px);
+      }
+
+      .legend {
+        max-height: min(48vh, 320px);
+        max-width: calc(100vw - 24px);
+      }
+
+      .leaflet-popup-content { overflow-wrap: anywhere; }
+      .region-list li { align-items: start; }
+      .region-list li > div { min-width: 0; }
+      .leaflet-bottom.leaflet-left { bottom: 22px; }
+    }
+
+    .home-link {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      color: #16202a;
+      display: block;
+      font: 600 13px/1 system-ui, sans-serif;
+      margin-top: 8px;
+      padding: 7px 10px;
+      text-decoration: none;
+      width: max-content;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script>
+    const palette = [
+      "#0f766e",
+      "#b91c1c",
+      "#1d4ed8",
+      "#b45309",
+      "#6d28d9",
+      "#047857",
+      "#be123c",
+      "#0369a1",
+      "#a16207",
+      "#7e22ce",
+      "#15803d",
+      "#c2410c",
+      "#334155"
+    ];
+    const regionColors = new Map([
+      ["us", "#94a3b8"],
+      ["west", "#64748b"],
+      ["norcal", "#6e6e6e"],
+      ["sacramentofoothills", "#d61f1f"],
+      ["sierranevada", "#7c3aed"],
+      ["bayarea", "#6b1515"],
+      ["centralcoast", "#2c3eb8"],
+      ["centralvalley", "#3cb64a"],
+      ["socal", "#f0c400"],
+      ["california", "#4b5563"]
+    ]);
+
+    function colorFor(id) {
+      return regionColors.get(id) || "#111827";
+    }
+
+    function regionId(properties, fallback = "") {
+      return properties.id || properties.index || fallback;
+    }
+
+    function regionCode(properties) {
+      return String(properties.proposed_code || regionId(properties) || properties.short_name || "").toLowerCase();
+    }
+
+    function titleCaseKind(kind) {
+      return String(kind || "")
+        .split("_")
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }
+
+    function regionTypeLabel(properties) {
+      if (properties.region_type) {
+        return properties.region_type;
+      }
+      return titleCaseKind(properties.kind);
+    }
+
+    function isPointFeature(feature) {
+      const type = feature?.geometry?.type;
+      return type === "Point" || type === "MultiPoint";
+    }
+
+    function layerHasPoints(data) {
+      return (data.features || []).some(isPointFeature);
+    }
+
+    function coordinationStatus(properties) {
+      return properties.coordination_status || "extrapolated_external";
+    }
+
+    function coordinationLabel(properties) {
+      if (properties.coordination_label) {
+        return properties.coordination_label;
+      }
+      return {
+        official_new_england: "Official New England Mesh Region",
+        official_local: "Official Local Region",
+        political_boundaries: "Political Boundaries",
+        proposed: "Proposed Region",
+        coordinated_external: "Coordinated External Region",
+        extrapolated_external: "Suggested External Region"
+      }[coordinationStatus(properties)] || "Suggested External Region";
+    }
+
+    function coordinationClass(properties) {
+      return coordinationStatus(properties).replaceAll("_", "-");
+    }
+
+    function swatchClass(properties) {
+      return `swatch ${coordinationClass(properties)}${properties.draft ? " draft" : ""}`;
+    }
+
+    const defaultCenter = [37.166, -119.449];
+    const defaultZoom = 6;
+
+    function sharedViewFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const latParam = params.get("lat");
+      const lngParam = params.get("lng");
+      if (latParam === null || lngParam === null) {
+        return null;
+      }
+      const lat = Number(latParam);
+      const lng = Number(lngParam);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return null;
+      }
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return null;
+      }
+      const zoomParam = params.get("z");
+      const zoom = zoomParam === null ? defaultZoom : Number(zoomParam);
+      return {
+        latlng: L.latLng(lat, lng),
+        zoom: Number.isFinite(zoom) ? Math.min(19, Math.max(1, Math.round(zoom))) : defaultZoom,
+      };
+    }
+
+    const initialSharedView = sharedViewFromUrl();
+    const initialCenter = initialSharedView?.latlng || L.latLng(defaultCenter[0], defaultCenter[1]);
+    const initialZoom = initialSharedView?.zoom || defaultZoom;
+    // Leaflet requires setView to establish its initial center and zoom.
+    const map = L.map("map", { minZoom: 1 }).setView(initialCenter, initialZoom, { animate: false });
+    const homeLink = L.control({ position: "topleft" });
+    homeLink.onAdd = () => {
+      const link = L.DomUtil.create("a", "home-link");
+      link.href = "/";
+      link.textContent = "All regions";
+      L.DomEvent.disableClickPropagation(link);
+      return link;
+    };
+    homeLink.addTo(map);
+    // Controls and popups should scroll themselves without zooming the map.
+    L.DomEvent.disableScrollPropagation(map.getContainer().querySelector(".leaflet-control-container"));
+    map.on("popupopen", event => L.DomEvent.disableScrollPropagation(event.popup.getElement()));
+    const regionRecords = [];
+    const subregionLayers = [];
+    let socalLayer = null;
+    let stateBounds = null;
+    const initialViewParams = new URLSearchParams(window.location.search);
+    const initialRegionView = initialViewParams.get("view");
+    // Live region GeoJSON is the only map source. Optional SoCal drill-in via view=socal.
+    // Legacy view=california / view=proposal URLs open the statewide map.
+    let regionView = initialRegionView === "socal" ? "socal" : "state";
+    let coverageVisible = false;
+    const regionPathPrefix = "/regions/";
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    const overlayControl = L.control.layers(null, null, {
+      collapsed: false,
+      sortLayers: true
+    }).addTo(map);
+
+    function installLayerActions() {
+      const container = overlayControl.getContainer();
+      if (!container || container.querySelector(".layer-actions")) {
+        return;
+      }
+      const div = L.DomUtil.create("div", "layer-actions");
+      container.insertBefore(div, container.firstChild);
+      container.classList.add("panel-collapsed");
+      div.innerHTML = `
+        <span class="layer-actions-title">Layers</span>
+        <button class="select-action" type="button">Select all</button>
+        <button class="deselect-action" type="button">Deselect all</button>
+        <button class="panel-toggle" type="button" aria-label="Open layers" aria-expanded="false">Layers</button>
+      `;
+      const toggle = div.querySelector(".panel-toggle");
+      const select = div.querySelector(".select-action");
+      const deselect = div.querySelector(".deselect-action");
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.on(toggle, "click", (event) => {
+        L.DomEvent.stop(event);
+        const collapsed = container.classList.toggle("panel-collapsed");
+        toggle.textContent = collapsed ? "Layers" : "Hide layers";
+        toggle.setAttribute("aria-label", collapsed ? "Open layers" : "Hide layers");
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+      L.DomEvent.on(select, "click", (event) => {
+        L.DomEvent.stop(event);
+        regionRecords.forEach(({layer}) => {
+          if (!map.hasLayer(layer)) {
+            map.addLayer(layer);
+          }
+        });
+      });
+      L.DomEvent.on(deselect, "click", (event) => {
+        L.DomEvent.stop(event);
+        regionRecords.forEach(({layer}) => {
+          if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+          }
+        });
+      });
+    }
+    installLayerActions();
+
+    const regionNavigation = L.control({ position: "topleft" });
+    regionNavigation.onAdd = () => {
+      const div = L.DomUtil.create("div", "region-nav");
+      div.hidden = true;
+      div.innerHTML = `<button type="button" class="return-state">← State view</button>`;
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.on(div.querySelector(".return-state"), "click", (event) => {
+        L.DomEvent.stop(event);
+        setRegionView("state");
+      });
+      return div;
+    };
+    regionNavigation.addTo(map);
+
+    const legend = L.control({ position: "bottomright" });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create("div", "legend panel-collapsed");
+      div.innerHTML = `
+        <h2>
+          <span data-map-title>Regions</span>
+          <button class="panel-toggle" type="button" aria-expanded="false">Region key</button>
+        </h2>
+        <p class="legend-note" hidden>SoCal subregion boundaries are draft for community review.</p>
+        <div id="legendRows"></div>
+        <section id="socalDraftKey" hidden aria-label="SoCal subregion key">
+          <h3 class="socal-key-title">SoCal subregions · draft</h3>
+          <p class="socal-key-note">Phone area codes are approximate hints, not region boundaries or routing aliases.</p>
+          <div id="socalDraftRows"></div>
+        </section>
+      `;
+      const toggle = div.querySelector(".panel-toggle");
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.on(toggle, "click", (event) => {
+        L.DomEvent.stop(event);
+        const collapsed = div.classList.toggle("panel-collapsed");
+        toggle.textContent = collapsed ? "Region key" : "Hide key";
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+      return div;
+    };
+    legend.addTo(map);
+
+    const treeControl = L.control({ position: "bottomright" });
+    treeControl.onAdd = () => {
+      const div = L.DomUtil.create("div", "tree-panel");
+      div.innerHTML = `
+        <div class="tree-panel-header">
+          <h2 class="tree-panel-heading">Region tree</h2>
+          <button class="panel-toggle" type="button" aria-label="Hide region tree" aria-expanded="true">Hide</button>
+        </div>
+        <div class="tree-panel-body">
+          <div class="trees" id="trees"></div>
+          <section class="tree-detail" id="treeDetail"></section>
+        </div>
+      `;
+      const toggle = div.querySelector(".panel-toggle");
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      L.DomEvent.on(toggle, "click", (event) => {
+        L.DomEvent.stop(event);
+        const collapsed = div.classList.toggle("panel-collapsed");
+        toggle.textContent = collapsed ? "Region tree" : "Hide";
+        toggle.setAttribute("aria-label", collapsed ? "Open region tree" : "Hide region tree");
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+      return div;
+    };
+    treeControl.addTo(map);
+
+    const treeHighlightLayer = L.geoJSON(null, {
+      interactive: false,
+      style: {
+        color: "#0f766e",
+        weight: 3.5,
+        opacity: 1,
+        fillColor: "#ffffff",
+        fillOpacity: 0.08
+      }
+    }).addTo(map);
+
+    let treeGroups = [];
+    let treeRowsById = new Map();
+    let lockedTreeId = null;
+    let shownTreeId = null;
+    let pendingTreeFocus = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+
+    function setMapTitle(value) {
+      const title = typeof value === "string" && value.trim() ? value.trim() : "Regions";
+      document.title = title;
+      document.querySelectorAll("[data-map-title]").forEach((element) => {
+        element.textContent = title;
+      });
+    }
+
+    function recordForTreeId(id) {
+      return regionRecords.find((record) => {
+        const props = record.active?.data?.features?.[0]?.properties || record.active?.entry || {};
+        return regionId(props, record.entry?.id) === id || record.entry?.id === id;
+      });
+    }
+
+    function treeChainFor(id) {
+      const rows = treeGroups.flatMap((group) => group.rows);
+      const index = rows.findIndex((row) => row.id === id);
+      if (index < 0) return [];
+      const chain = [rows[index]];
+      let depth = rows[index].depth;
+      for (let i = index - 1; i >= 0 && depth > 0; i -= 1) {
+        if (rows[i].depth < depth) {
+          chain.unshift(rows[i]);
+          depth = rows[i].depth;
+        }
+      }
+      return chain;
+    }
+
+    function treeButton(row) {
+      const color = colorFor(row.id);
+      return `<button type="button" class="tree-row" data-id="${escapeHtml(row.id)}" style="padding-left:${8 + row.depth * 14}px">
+        <code>${escapeHtml(row.code)}</code>
+        <i class="tree-swatch" style="background:${escapeHtml(color)}"></i>
+        <span>${escapeHtml(row.name)}</span>
+      </button>`;
+    }
+
+    function renderTreeDetail(id) {
+      const host = document.getElementById("treeDetail");
+      if (!host) return;
+      const row = treeRowsById.get(id);
+      if (!row) {
+        host.innerHTML = `
+          <h2>How to read the map</h2>
+          <p>Click a scope in the tree, or click the map. The Layers box still controls which boundaries are drawn.</p>`;
+        return;
+      }
+      const chain = treeChainFor(id).map((item) => (
+        `<li><code>${escapeHtml(item.code)}</code> ${escapeHtml(item.name)}</li>`
+      )).join("");
+      const record = recordForTreeId(id);
+      const props = record?.active?.data?.features?.[0]?.properties || record?.active?.entry || {};
+      const notes = props.notes ? `<p>${escapeHtml(props.notes)}</p>` : "";
+      const kind = row.kind ? `<p>${escapeHtml(titleCaseKind(row.kind))} scope.</p>` : "";
+      host.innerHTML = `
+        <h2><code style="color:#0f766e">${escapeHtml(row.code)}</code> ${escapeHtml(row.name)}</h2>
+        <ul class="tree-chain">${chain}</ul>
+        ${kind}
+        ${notes}`;
+    }
+
+    function showTreeHighlight(id) {
+      if (id === shownTreeId) return;
+      shownTreeId = id;
+      treeHighlightLayer.clearLayers();
+      document.querySelectorAll(".tree-row").forEach((button) => {
+        button.classList.toggle("is-hot", button.dataset.id === id && id !== lockedTreeId);
+        button.classList.toggle("is-active", button.dataset.id === lockedTreeId);
+      });
+      if (!id) return;
+      const record = recordForTreeId(id);
+      if (!record || record.points) return;
+      const data = record.active?.data;
+      if (!data?.features?.length) return;
+      treeHighlightLayer.addData(data);
+      treeHighlightLayer.bringToFront();
+    }
+
+    function lockTreeSelection(id, { fit = false } = {}) {
+      if (!treeRowsById.has(id)) return;
+      lockedTreeId = id;
+      shownTreeId = null;
+      const record = recordForTreeId(id);
+      if (record?.isSubregion && regionView !== "socal") {
+        setRegionView("socal", { fit: false, updateUrl: true });
+      }
+      showTreeHighlight(id);
+      renderTreeDetail(id);
+      history.replaceState(null, "", `#${encodeURIComponent(id)}`);
+      if (!record) return;
+      if (!map.hasLayer(record.layer)) {
+        map.addLayer(record.layer);
+        if (!record.points) {
+          const props = record.active?.data?.features?.[0]?.properties || record.active?.entry || {};
+          addHatchPattern(record.layer, props);
+        }
+      }
+      if (!fit) return;
+      if (record.points) {
+        const coords = record.active?.data?.features?.[0]?.geometry?.coordinates;
+        if (Array.isArray(coords) && coords.length >= 2) {
+          map.setView([coords[1], coords[0]], 10);
+        }
+        return;
+      }
+      const bounds = record.layer.getBounds();
+      if (bounds.isValid()) map.fitBounds(bounds.pad(0.18), { animate: true });
+    }
+
+    function renderRegionTree(groups) {
+      treeGroups = groups;
+      treeRowsById = new Map(groups.flatMap((group) => group.rows.map((row) => [row.id, row])));
+      const host = document.getElementById("trees");
+      if (!host) return;
+      host.innerHTML = groups.map((group, index) => `
+        <section class="tree-card" id="tree-card-${index}">
+          <h2>${escapeHtml(group.title)}</h2>
+          ${group.note ? `<p class="tree-heading">${escapeHtml(group.note)}</p>` : ""}
+          ${group.rows.map((row) => treeButton(row)).join("")}
+        </section>
+      `).join("");
+      host.querySelectorAll(".tree-row").forEach((button) => {
+        button.addEventListener("mouseenter", () => showTreeHighlight(button.dataset.id));
+        button.addEventListener("mouseleave", () => showTreeHighlight(lockedTreeId));
+        button.addEventListener("click", () => lockTreeSelection(button.dataset.id, { fit: true }));
+      });
+      renderTreeDetail(lockedTreeId);
+      if (pendingTreeFocus && treeRowsById.has(pendingTreeFocus) && regionRecords.length) {
+        const focus = pendingTreeFocus;
+        pendingTreeFocus = "";
+        lockTreeSelection(focus, { fit: true });
+      }
+    }
+
+    function maybeApplyPendingTreeFocus() {
+      if (!pendingTreeFocus || !treeRowsById.has(pendingTreeFocus) || !regionRecords.length) return;
+      const focus = pendingTreeFocus;
+      pendingTreeFocus = "";
+      lockTreeSelection(focus, { fit: true });
+    }
+
+    function featureStyle(feature) {
+      const id = regionId(feature.properties);
+      const color = colorFor(id || "");
+      const status = coordinationStatus(feature.properties || {});
+      const isOfficial = status === "official_new_england" || status === "official_local";
+      const isHatched = status === "extrapolated_external" || (status === "proposed" && !feature.properties.draft);
+      const highlightSoCal = id === "socal" && regionView === "state";
+      return {
+        color,
+        dashArray: status === "extrapolated_external" ? "6 5" : null,
+        fillColor: isHatched ? `url(#hatch-${status}-${id})` : color,
+        fillOpacity: coverageVisible ? (highlightSoCal ? 0.06 : 0.025) : (highlightSoCal ? 0.23 : (isHatched ? 0.18 : (isOfficial ? 0.18 : 0.09))),
+        opacity: highlightSoCal ? 1 : (isOfficial ? 0.95 : (status === "proposed" && feature.properties.draft ? 0.85 : 0.48)),
+        weight: highlightSoCal ? 4 : (id === "east" ? 2 : 3)
+      };
+    }
+
+    function addHatchPattern(layer, properties) {
+      const status = coordinationStatus(properties);
+      if (status !== "extrapolated_external" && !(status === "proposed" && !properties.draft)) {
+        return;
+      }
+      const id = regionId(properties);
+      const patternId = `hatch-${status}-${id}`;
+      const pathLayer = layer.getLayers()[0];
+      const svg = pathLayer?._renderer?._container;
+      if (!svg || svg.querySelector(`#${patternId}`)) {
+        return;
+      }
+
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      const defs = svg.querySelector("defs") || svg.insertBefore(
+        document.createElementNS(svgNamespace, "defs"),
+        svg.firstChild
+      );
+      const pattern = document.createElementNS(svgNamespace, "pattern");
+      pattern.setAttribute("id", patternId);
+      pattern.setAttribute("width", "12");
+      pattern.setAttribute("height", "12");
+      pattern.setAttribute("patternUnits", "userSpaceOnUse");
+
+      const background = document.createElementNS(svgNamespace, "rect");
+      background.setAttribute("width", "12");
+      background.setAttribute("height", "12");
+      background.setAttribute("fill", colorFor(id));
+      pattern.appendChild(background);
+
+      const hatch = document.createElementNS(svgNamespace, "path");
+      hatch.setAttribute(
+        "d",
+        status === "proposed"
+          ? "M -3,3 L 3,-3 M 0,12 L 12,0 M 9,15 L 15,9"
+          : "M -3,9 L 3,15 M 0,0 L 12,12 M 9,-3 L 15,3"
+      );
+      hatch.setAttribute("fill", "none");
+      hatch.setAttribute("stroke", "#111827");
+      hatch.setAttribute("stroke-opacity", "0.8");
+      hatch.setAttribute("stroke-width", "1.5");
+      pattern.appendChild(hatch);
+      defs.appendChild(pattern);
+    }
+
+    function showError(message) {
+      const div = document.createElement("div");
+      div.className = "error";
+      div.textContent = message;
+      document.body.appendChild(div);
+    }
+
+    function fetchJson(url) {
+      // Do not reuse cached local GeoJSON after boundary edits. Keep external
+      // GeoJSON requests unchanged for CORS.
+      const resolved = new URL(url, window.location.href);
+      const sameOrigin = resolved.origin === window.location.origin;
+      if (sameOrigin) {
+        resolved.searchParams.set("_", String(Date.now()));
+      }
+      return fetch(resolved.href, sameOrigin ? { cache: "no-store" } : undefined).then((response) => {
+        if (!response.ok) {
+          throw new Error(`${url}: HTTP ${response.status}`);
+        }
+        return response.json();
+      });
+    }
+
+    function pointOnSegment(point, a, b) {
+      const lengthSquared = (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2;
+      if (lengthSquared === 0) {
+        return Math.abs(point[0] - a[0]) < 1e-10 && Math.abs(point[1] - a[1]) < 1e-10;
+      }
+      const cross = (point[1] - a[1]) * (b[0] - a[0]) - (point[0] - a[0]) * (b[1] - a[1]);
+      if (Math.abs(cross) > 1e-10) {
+        return false;
+      }
+      const dot = (point[0] - a[0]) * (b[0] - a[0]) + (point[1] - a[1]) * (b[1] - a[1]);
+      if (dot < 0) {
+        return false;
+      }
+      return dot <= lengthSquared;
+    }
+
+    function pointInRing(point, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const a = ring[i];
+        const b = ring[j];
+        if (pointOnSegment(point, a, b)) {
+          return true;
+        }
+        const intersects = ((a[1] > point[1]) !== (b[1] > point[1]))
+          && (point[0] < ((b[0] - a[0]) * (point[1] - a[1])) / (b[1] - a[1]) + a[0]);
+        if (intersects) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
+
+    function pointInPolygon(point, polygon) {
+      if (!polygon.length || !pointInRing(point, polygon[0])) {
+        return false;
+      }
+      return !polygon.slice(1).some((hole) => pointInRing(point, hole));
+    }
+
+    function pointInGeometry(point, geometry) {
+      if (!geometry) {
+        return false;
+      }
+      if (geometry.type === "Polygon") {
+        return pointInPolygon(point, geometry.coordinates);
+      }
+      if (geometry.type === "MultiPolygon") {
+        return geometry.coordinates.some((polygon) => pointInPolygon(point, polygon));
+      }
+      if (geometry.type === "GeometryCollection") {
+        return geometry.geometries.some((child) => pointInGeometry(point, child));
+      }
+      return false;
+    }
+
+    function renderLegendRow(row, props, isSubregion) {
+      const color = colorFor(regionId(props));
+      const areaCodes = isSubregion && Array.isArray(props.area_code_hints)
+        ? `<small>Area code hints: ${escapeHtml(props.area_code_hints.join(" / "))}</small>` : "";
+      row.innerHTML = `
+        <span class="${swatchClass(props)}" style="color: ${color}; background-color: ${color}33"></span>
+        <span><code class="region-code">${escapeHtml(regionCode(props))}</code> - ${escapeHtml(props.name)}${coordinationStatus(props) === "proposed" ? " (draft)" : ""}${areaCodes}</span>
+      `;
+    }
+
+    function setRegionView(next, { fit = true, updateUrl = true } = {}) {
+      if (!socalLayer || !subregionLayers.length || !["state", "socal"].includes(next)) return;
+      clearRegionHover();
+      regionView = next;
+      const isSoCal = next === "socal";
+      regionRecords.forEach(({layer}) => layer.setStyle(featureStyle));
+      subregionLayers.forEach(({ layer, properties }) => {
+        if (isSoCal && !map.hasLayer(layer)) {
+          layer.addTo(map);
+          addHatchPattern(layer, properties);
+        } else if (!isSoCal && map.hasLayer(layer)) {
+          map.removeLayer(layer);
+        }
+      });
+      document.getElementById("socalDraftKey").hidden = !isSoCal;
+      legend.getContainer().querySelector(".legend-note").hidden = !isSoCal;
+      regionNavigation.getContainer().hidden = !isSoCal;
+      map.closePopup();
+      if (fit) {
+        const bounds = isSoCal ? socalLayer.getBounds() : stateBounds;
+        if (bounds?.isValid()) map.fitBounds(bounds.pad(0.04), { animate: false });
+      }
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        if (next === "state") url.searchParams.delete("view");
+        else url.searchParams.set("view", next);
+        ["lat", "lng", "z"].forEach((key) => url.searchParams.delete(key));
+        window.history.replaceState(null, "", url);
+      }
+    }
+
+    function formatCoordinate(value) {
+      return Number(value).toFixed(6);
+    }
+
+    function formatShareCoordinate(value) {
+      return Number(value).toFixed(5);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function scopeStackMarkup(properties) {
+      const names = typeof properties.region_chain === "string"
+        ? properties.region_chain.trim().split(/\s+/).filter(Boolean) : [];
+      if (!names.length) return `<span class="scope-help">No region hierarchy is available for this region.</span>`;
+      const title = properties.draft || coordinationStatus(properties) === "proposed"
+        ? "Proposed region hierarchy" : "Mapped region hierarchy";
+      return `<span class="scope-title">${title}</span><span class="scope-stack">${names
+        .map(name => `<code class="region-code">${escapeHtml(name)}</code>`)
+        .join('<span class="scope-separator" aria-hidden="true">›</span>')}</span>
+        <span class="scope-help">When sending, select one level as the scope.</span>`;
+    }
+
+    // Polygons remain non-interactive so the existing map click and outside-
+    // SoCal navigation continue to work. Hit-test only currently visible layers.
+    const regionHoverTooltip = L.tooltip({direction: "auto", offset: [14, 0], opacity: 1, className: "region-hover-tooltip"});
+    let hoveredRegion = null;
+    let hoveredFeature = null;
+    let hoverFrame = 0;
+    let pendingHover = null;
+
+    function clearRegionHover() {
+      if (hoverFrame) cancelAnimationFrame(hoverFrame);
+      hoverFrame = 0;
+      pendingHover = null;
+      if (hoveredRegion && map.hasLayer(hoveredRegion.layer)) hoveredRegion.layer.setStyle(featureStyle);
+      hoveredRegion = null;
+      hoveredFeature = null;
+      if (map.hasLayer(regionHoverTooltip)) map.removeLayer(regionHoverTooltip);
+    }
+
+    function visibleRegionAt(latlng) {
+      const point = [latlng.lng, latlng.lat];
+      let best = null;
+      regionRecords.forEach(record => {
+        if (record.points || !map.hasLayer(record.layer) || (record.isSubregion && regionView !== "socal")) return;
+        const bounds = record.layer.getBounds();
+        if (!bounds.isValid() || !bounds.contains(latlng)) return;
+        for (const feature of record.active.data.features || []) {
+          if (isPointFeature(feature) || !pointInGeometry(point, feature.geometry)) continue;
+          const score = (record.isSubregion ? 100 : 0) + regionChainDepth(feature.properties);
+          if (!best || score > best.score) best = {record, feature, score};
+        }
+      });
+      return best;
+    }
+
+    map.on("mousemove", event => {
+      const source = event.originalEvent;
+      if (source?.buttons || source?.pointerType === "touch" || source?.target?.closest?.(".leaflet-control, .leaflet-popup")) {
+        clearRegionHover();
+        return;
+      }
+      pendingHover = event.latlng;
+      if (hoverFrame) return;
+      hoverFrame = requestAnimationFrame(() => {
+        hoverFrame = 0;
+        const latlng = pendingHover;
+        if (!latlng) return;
+        const hit = visibleRegionAt(latlng);
+        if (!hit) { clearRegionHover(); return; }
+        if (hoveredRegion !== hit.record || hoveredFeature !== hit.feature) {
+          if (hoveredRegion && map.hasLayer(hoveredRegion.layer)) hoveredRegion.layer.setStyle(featureStyle);
+          hoveredRegion = hit.record;
+          hoveredFeature = hit.feature;
+          hoveredRegion.layer.setStyle(feature => ({...featureStyle(feature), weight: 4, opacity: 1,
+            fillOpacity: coverageVisible ? .08 : .24}));
+          const exploreHint = regionView !== "socal" && regionId(hit.feature.properties) === "socal"
+            ? `<span class="scope-help"><strong>Click to explore subregions</strong></span>` : "";
+          regionHoverTooltip.setContent(`<div class="region-hover-name">${escapeHtml(hit.feature.properties.name || "Region")}</div>${scopeStackMarkup(hit.feature.properties)}${exploreHint}`);
+        }
+        regionHoverTooltip.setLatLng(latlng);
+        if (!map.hasLayer(regionHoverTooltip)) regionHoverTooltip.addTo(map);
+      });
+    });
+    map.on("movestart zoomstart popupopen overlayremove", clearRegionHover);
+    L.DomEvent.on(map.getContainer(), "mouseleave", clearRegionHover);
+
+    // The compressed display layers contain only generalized coverage shapes
+    // and reported path geometry. Both start off, independent of the map view.
+    async function loadSampledLayer(filename) {
+      const response = await fetch(`${regionPathPrefix}${filename}`);
+      if (!response.ok) throw new Error("Sampled layer unavailable");
+      let bytes = new Uint8Array(await response.arrayBuffer());
+      if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+        if (!("DecompressionStream" in window)) throw new Error("This browser cannot open compressed layers");
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      }
+      const data = JSON.parse(new TextDecoder().decode(bytes));
+      if (data?.type !== "FeatureCollection" || !Array.isArray(data.features)) throw new Error("Invalid sampled layer");
+      return data;
+    }
+
+    function installSampledLayers() {
+      const control = L.control({position: "topleft"});
+      const colors = ["#5803a4", "#9e1c9b", "#d25072", "#f48b47", "#fdc527"];
+      const styles = {
+        coverage: feature => ({stroke: false, fill: true,
+          fillColor: colors[Number(feature.properties?.band) - 1] || colors[0],
+          fillOpacity: Number(feature.properties?.band) === 1 ? .5 : .75}),
+        topology: {color: "#315b9a", weight: 1, opacity: .66}
+      };
+      control.onAdd = () => {
+        const div = L.DomUtil.create("section", "sampled-layers");
+        div.innerHTML = `<div class="sampled-layers-title">Sampled layers</div>
+          <label><input type="checkbox" data-sample="coverage"><span>Sampled Coverage</span></label>
+          <label><input type="checkbox" data-sample="topology"><span>Sampled Topology</span></label>
+          <div class="sampled-legend" hidden><div>Reception margin</div><div class="sampled-legend-ramp"></div>
+            <div class="sampled-legend-range"><span>−6 dB</span><span>+18 dB or more</span></div></div>
+          <p class="sampled-layers-note">927.875 MHz sample. Coverage is generalized; reported paths may not be direct RF links.</p>
+          <p class="sampled-layers-status" role="status" aria-live="polite"></p>`;
+        const legend = div.querySelector(".sampled-legend");
+        const status = div.querySelector(".sampled-layers-status");
+        div.querySelectorAll("input[data-sample]").forEach(input => {
+          const kind = input.dataset.sample;
+          const paneName = `sampled-${kind}`;
+          const pane = map.createPane(paneName);
+          pane.style.zIndex = kind === "coverage" ? "310" : "410";
+          pane.style.pointerEvents = "none";
+          let layer, pending;
+          input.addEventListener("change", async () => {
+            if (input.checked) {
+              try {
+                pending ||= loadSampledLayer(`sampled-${kind}.geojson.gz`)
+                  .then(data => layer = L.geoJSON(data, {renderer: L.canvas({pane: paneName}),
+                    interactive: false, style: styles[kind]}))
+                  .catch(error => { pending = null; throw error; });
+                await pending;
+                if (!input.checked) return;
+                layer.addTo(map);
+                status.textContent = "";
+              } catch {
+                input.checked = false;
+                status.textContent = `${input.closest("label").textContent.trim()} is unavailable.`;
+              }
+            } else if (layer) map.removeLayer(layer);
+            if (kind === "coverage") {
+              clearRegionHover();
+              coverageVisible = !!layer && map.hasLayer(layer);
+              legend.hidden = !coverageVisible;
+              regionRecords.forEach(({layer}) => layer.setStyle(featureStyle));
+            }
+          });
+        });
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+      };
+      control.addTo(map);
+
+      // Ignore legacy layer query parameters so a shared link starts with both off.
+      const url = new URL(window.location.href);
+      ["coverage", "coverageView", "coverageOpacity", "topology"].forEach(key => url.searchParams.delete(key));
+      window.history.replaceState(null, "", url);
+    }
+    installSampledLayers();
+
+    function locationLabel(address) {
+      if (!address) {
+        return "";
+      }
+      const town = address.city
+        || address.town
+        || address.village
+        || address.hamlet
+        || address.municipality
+        || address.suburb
+        || address.neighbourhood;
+      const county = address.county;
+      const state = address.state_code || address.state;
+      return [town, county, state].filter(Boolean).join(", ");
+    }
+
+    function reverseGeocode(latlng) {
+      const params = new URLSearchParams({
+        format: "jsonv2",
+        lat: latlng.lat,
+        lon: latlng.lng,
+        zoom: "18",
+        addressdetails: "1",
+      });
+      return fetchJson(`https://nominatim.openstreetmap.org/reverse?${params}`)
+        .then((data) => locationLabel(data.address) || data.display_name || "");
+    }
+
+    function regionListPopup(latlng, matches, place = "Looking up...") {
+      const coordinate = `${formatCoordinate(latlng.lat)}, ${formatCoordinate(latlng.lng)}`;
+      const placeRow = `<tr><th>Place</th><td>${escapeHtml(place)}</td></tr>`;
+      if (!matches.length) {
+        return `
+          <div class="popup-title">No MeshCore region</div>
+          <table class="popup-table">
+            <tr><th>GPS</th><td>${coordinate}</td></tr>
+            ${placeRow}
+          </table>
+        `;
+      }
+
+      return `
+        <div class="popup-title">${matches.length} MeshCore region${matches.length === 1 ? "" : "s"}</div>
+        <table class="popup-table">
+          <tr><th>GPS</th><td>${coordinate}</td></tr>
+          ${placeRow}
+        </table>
+        <ul class="region-list">
+          ${matches.map((props) => {
+            const id = regionId(props);
+            const color = colorFor(id);
+            const coordinator = props.coordinator
+              ? `<span>Coordinator: ${escapeHtml(props.coordinator)}</span>`
+              : "";
+            const chain = props.region_chain ? scopeStackMarkup(props) : "";
+            const notes = props.notes
+              ? `<span>${escapeHtml(props.notes)}</span>`
+              : "";
+            const areaCodes = Array.isArray(props.area_code_hints) && props.area_code_hints.length
+              ? `<span>Phone area code hints: ${escapeHtml(props.area_code_hints.join(" / "))} (approximate, not routing)</span>`
+              : "";
+            return `
+              <li>
+                <span class="${swatchClass(props)}" style="color: ${color}; background-color: ${color}33"></span>
+                <div>
+                  <strong class="popup-region-name"><code class="region-code">${escapeHtml(regionCode(props))}</code>${props.optional ? " (Optional)" : ""} - ${escapeHtml(props.name)}</strong>
+                  <span>${escapeHtml(regionTypeLabel(props))}</span>
+                  <span class="coordination-badge ${coordinationClass(props)}">${escapeHtml(coordinationLabel(props))}</span>
+                  ${chain}
+                  ${areaCodes}
+                  ${notes}
+                  ${coordinator}
+                </div>
+              </li>
+            `;
+          }).join("")}
+        </ul>
+      `;
+    }
+
+    function queryRegionsAt(latlng) {
+      const point = [latlng.lng, latlng.lat];
+      return regionRecords
+        .flatMap(({active, layer}) => (active.data.features || [])
+          .filter(feature => (!feature.properties.legacy_reference || map.hasLayer(layer))
+            && (feature.properties.overlay_group !== "subregion" || regionView === "socal")
+            && !isPointFeature(feature) && pointInGeometry(point, feature.geometry)))
+        .map((feature) => feature.properties)
+        .sort((a, b) => {
+          if (Boolean(a.optional) !== Boolean(b.optional)) {
+            return a.optional ? 1 : -1;
+          }
+          const depthA = regionChainDepth(a);
+          const depthB = regionChainDepth(b);
+          if (depthA !== depthB) return depthB - depthA;
+          return String(a.short_name).localeCompare(String(b.short_name));
+        });
+    }
+
+    function regionChainDepth(properties) {
+      const chain = String(properties.region_chain || "").trim();
+      return chain ? chain.split(/\s+/).length : 0;
+    }
+
+    function localAreaPopup(properties) {
+      const chain = properties.region_chain
+        ? `<tr><th>Scopes</th><td>${scopeStackMarkup(properties)}</td></tr>`
+        : "";
+      const counties = properties.counties
+        ? `<tr><th>County</th><td>${escapeHtml(properties.counties)}</td></tr>`
+        : "";
+      const notes = properties.notes
+        ? `<tr><th>Notes</th><td>${escapeHtml(properties.notes)}</td></tr>`
+        : "";
+      return `
+        <div class="popup-title"><code class="region-code">${regionCode(properties)}</code> - ${escapeHtml(properties.name || "")}</div>
+        <table class="popup-table">
+          <tr><th>Type</th><td>${escapeHtml(regionTypeLabel(properties))}</td></tr>
+          ${chain}
+          ${counties}
+          ${notes}
+        </table>
+      `;
+    }
+
+    function updateShareUrl(latlng) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lat", formatShareCoordinate(latlng.lat));
+      url.searchParams.set("lng", formatShareCoordinate(latlng.lng));
+      url.searchParams.set("z", String(map.getZoom()));
+      window.history.replaceState(null, "", url);
+    }
+
+    function openRegionPopup(latlng, updateUrl = false) {
+      if (updateUrl) {
+        updateShareUrl(latlng);
+      }
+      const matches = queryRegionsAt(latlng);
+      const narrow = window.matchMedia("(max-width: 700px)").matches;
+      const maxWidth = narrow ? Math.min(320, Math.max(180, window.innerWidth - 60)) : 420;
+      const mapBounds = map.getContainer().getBoundingClientRect();
+      const topControls = map.getContainer().querySelector(".leaflet-top.leaflet-left");
+      const bottomControls = map.getContainer().querySelector(".leaflet-bottom.leaflet-left");
+      const topPadding = narrow && topControls ? Math.ceil(topControls.getBoundingClientRect().bottom - mapBounds.top + 12) : 12;
+      const bottomPadding = narrow && bottomControls ? Math.ceil(mapBounds.bottom - bottomControls.getBoundingClientRect().top + 12) : 12;
+      const maxHeight = narrow
+        ? Math.max(100, Math.min(Math.round(mapBounds.height * .4), mapBounds.height - topPadding - bottomPadding - 60))
+        : Math.max(160, Math.min(450, mapBounds.height - 120));
+      const popup = L.popup({ maxWidth, minWidth: narrow ? Math.min(280, maxWidth) : 320,
+        maxHeight, autoPanPaddingTopLeft: L.point(12, topPadding),
+        autoPanPaddingBottomRight: L.point(12, bottomPadding) })
+        .setLatLng(latlng)
+        .setContent(regionListPopup(latlng, matches))
+        .openOn(map);
+
+      reverseGeocode(latlng)
+        .then((place) => {
+          if (map.hasLayer(popup)) {
+            popup.setContent(regionListPopup(latlng, matches, place || "Unknown"));
+          }
+        })
+        .catch(() => {
+          if (map.hasLayer(popup)) {
+            popup.setContent(regionListPopup(latlng, matches, "Unavailable"));
+          }
+        });
+    }
+
+    map.on("click", (event) => {
+      const point = [event.latlng.lng, event.latlng.lat];
+      const inSoCal = socalLayer?.getLayers().some(layer => pointInGeometry(point, layer.feature.geometry));
+      if (regionView === "socal" && socalLayer && !inSoCal) {
+        setRegionView("state");
+        return;
+      }
+      if (regionView !== "socal" && socalLayer && subregionLayers.length && map.hasLayer(socalLayer) && inSoCal) {
+        setRegionView("socal");
+        return;
+      }
+      openRegionPopup(event.latlng, true);
+    });
+
+    function prepareRegionData(entry, data) {
+      const points = layerHasPoints(data);
+      const { coordinator: _entryCoordinator, ...entryProperties } = entry;
+      const features = (data.features || []).map((feature) => {
+        const {
+          coordination_status: _featureCoordinationStatus,
+          coordination_label: _featureCoordinationLabel,
+          coordination_notes: _featureCoordinationNotes,
+          ...featureProperties
+        } = feature.properties || {};
+        const properties = points ? {
+          ...entryProperties,
+          ...featureProperties,
+          coordination_status: featureProperties.coordination_status || entry.coordination_status || "official_local",
+        } : {
+          ...featureProperties,
+          ...entryProperties,
+          id: entry.id,
+          coordination_status: entry.coordination_status || "extrapolated_external",
+        };
+        return {...feature, properties};
+      });
+      return { entry, data: {...data, features} };
+    }
+
+    fetchJson(`${regionPathPrefix}index.json`)
+      .then(async (manifest) => {
+        const index = manifest?.regions;
+        if (!Array.isArray(index)) {
+          throw new Error(`${regionPathPrefix}index.json must contain a regions array`);
+        }
+        setMapTitle(manifest.title);
+        index.forEach((entry, indexPosition) => {
+          if (entry.color) {
+            regionColors.set(entry.id, entry.color);
+          } else if (!regionColors.has(entry.id)) {
+            regionColors.set(entry.id, palette[indexPosition % palette.length]);
+          }
+        });
+        return Promise.all(index.map((entry) => {
+          if (!entry.file) {
+            throw new Error("Every index entry must include a file property");
+          }
+          if (!entry.id) {
+            throw new Error("Every index entry must include an id property");
+          }
+          // `file` may be a local filename or an externally hosted GeoJSON URL.
+          // Example external index entry (keep index.json valid JSON, so do not add
+          // this comment there):
+          // { "id": "ny", "name": "New York", "short_name": "NY", "coordination_status": "coordinated_external", "coordination_label": "Coordinated External Region", "file": "https://nyme.sh/regions/ny.geojson" }
+          const regionFileUrl = new URL(
+            entry.file,
+            new URL(regionPathPrefix, window.location.href)
+          ).href;
+          return fetchJson(regionFileUrl).then((data) => ({
+            entry,
+            data
+          }));
+        }));
+      })
+      .then((response) => {
+        const bounds = L.latLngBounds();
+        const legendRows = document.getElementById("legendRows");
+        const socalDraftRows = document.getElementById("socalDraftRows");
+
+        response.forEach(({ entry, data: regionData }) => {
+          const active = prepareRegionData(entry, regionData);
+          const data = active.data;
+          const points = layerHasPoints(data);
+          const isSubregion = entry.overlay_group === "subregion";
+          const layer = L.geoJSON(data, {
+            interactive: points,
+            style: featureStyle,
+            pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
+              radius: 5,
+              color: colorFor(regionId(feature.properties, entry.id)),
+              fillColor: colorFor(regionId(feature.properties, entry.id)),
+              fillOpacity: 0.9,
+              weight: 1,
+              opacity: 1
+            }),
+            onEachFeature: points
+              ? (feature, featureLayer) => {
+                featureLayer.bindPopup(localAreaPopup(feature.properties), {
+                  maxWidth: 420,
+                  minWidth: 280
+                });
+              }
+              : undefined
+          });
+          const props = data.features?.[0]?.properties || active.entry;
+          const id = regionId(points ? active.entry : props, entry.id);
+          const record = {entry, active, layer, points, isSubregion, legendRow: null};
+          regionRecords.push(record);
+          if (id === "socal") socalLayer = layer;
+          if (isSubregion) subregionLayers.push({ layer, properties: props });
+          overlayControl.addOverlay(layer, `${escapeHtml(regionCode(points ? active.entry : props))} - ${escapeHtml(points ? active.entry.name : props.name)}`);
+          if (!isSubregion && active.entry.visible !== false) {
+            layer.addTo(map);
+            if (!points) {
+              addHatchPattern(layer, props);
+            }
+          }
+          const layerBounds = layer.getBounds();
+          if (layerBounds.isValid()) {
+            bounds.extend(layerBounds);
+          }
+
+          if ((isSubregion || entry.legend !== false) && !points) {
+            const row = document.createElement("div");
+            row.className = "legend-row";
+            renderLegendRow(row, props, isSubregion);
+            record.legendRow = row;
+            (isSubregion ? socalDraftRows : legendRows).appendChild(row);
+          }
+        });
+
+        stateBounds = bounds;
+        const hasSoCalDraft = !!socalLayer && subregionLayers.length > 0;
+        regionNavigation.getContainer().hidden = regionView !== "socal" || !hasSoCalDraft;
+        legend.getContainer().querySelector(".legend-note").hidden = regionView !== "socal" || !hasSoCalDraft;
+        map.invalidateSize();
+        const sharedSoCal = new URLSearchParams(window.location.search).get("view") === "socal" && hasSoCalDraft;
+        if (sharedSoCal) setRegionView("socal", { fit: !initialSharedView, updateUrl: false });
+        if (initialSharedView) {
+          map.setView(initialSharedView.latlng, initialSharedView.zoom);
+          openRegionPopup(initialSharedView.latlng);
+        } else if (!sharedSoCal && bounds.isValid()) {
+          map.fitBounds(bounds.pad(0.04), { animate: false });
+        } else if (!sharedSoCal) {
+          map.setView(defaultCenter, defaultZoom, { animate: false });
+        }
+        maybeApplyPendingTreeFocus();
+      })
+      .catch((error) => {
+        showError(`Could not load the GeoJSON manifest or region files: ${error.message}. Serve this folder over HTTP instead of opening the HTML file directly.`);
+      });
+
+    fetchJson("/catalog.json")
+      .then((catalog) => {
+        const california = (catalog.maps || []).find((entry) => entry.id === "california");
+        if (!california?.groups?.length) {
+          throw new Error("California tree is missing from catalog.json");
+        }
+        renderRegionTree(california.groups);
+      })
+      .catch((error) => {
+        const host = document.getElementById("trees");
+        if (host) {
+          host.innerHTML = `<section class="tree-card"><h2>Region tree</h2><p class="tree-heading">Could not load the catalog (${escapeHtml(error.message)}).</p></section>`;
+        }
+        renderTreeDetail(null);
+      });
+  </script>
+</body>
+</html>

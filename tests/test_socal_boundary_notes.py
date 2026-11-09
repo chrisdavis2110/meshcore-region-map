@@ -43,7 +43,7 @@ class NorthernBoundaryNoteTests(unittest.TestCase):
 
         index = json.loads((REGIONS / "index.json").read_text())["regions"]
         entry = next(item for item in index if item["id"] == "santamaria")
-        self.assertEqual(entry["proposed_code"], "socal-smv")
+        self.assertEqual(entry["proposed_code"], "smv")
         self.assertFalse(any(item["id"] == "slocoast" for item in index))
 
     def test_notes_trace_the_shared_proposal_boundary(self):
