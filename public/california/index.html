@@ -366,22 +366,6 @@
       color: #1e293b; cursor: pointer; font: 600 12px/1.2 system-ui, sans-serif;
       min-height: 32px; padding: 5px 9px; width: 100%;
     }
-    .sampled-layers {
-      background: rgba(255, 255, 255, 0.97); border: 1px solid #d6e0e7;
-      border-radius: 12px; box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
-      box-sizing: border-box; color: #172b38; font: 12px/1.4 system-ui, sans-serif;
-      padding: 10px 12px; width: min(245px, calc(100vw - 24px));
-    }
-    .sampled-layers-title { color: #526876; font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-    .sampled-layers label { align-items: center; cursor: pointer; display: flex; font-size: 13px; font-weight: 700; gap: 8px; min-height: 30px; }
-    .sampled-layers input { accent-color: #087b78; height: 16px; margin: 0; width: 16px; }
-    .sampled-layers-note, .sampled-layers-status { color: #526876; font-size: 11px; margin: 4px 0 0; }
-    .sampled-layers-status:empty { display: none; }
-    .sampled-legend { color: #526876; font-size: 10px; margin-top: 7px; }
-    .sampled-legend[hidden] { display: none; }
-    .sampled-legend-ramp { background: linear-gradient(to right, #5803a4, #9e1c9b, #d25072, #f48b47, #fdc527); border-radius: 3px; height: 7px; margin: 3px 0; }
-    .sampled-legend-range { display: flex; justify-content: space-between; }
-    .sampled-layers :focus-visible,
     .legend :focus-visible,
     .region-nav :focus-visible,
     .tree-panel :focus-visible {
@@ -944,7 +928,6 @@
     // Live region GeoJSON is the only map source. Optional SoCal drill-in via view=socal.
     // Legacy view=california / view=proposal URLs open the statewide map.
     let regionView = initialRegionView === "socal" ? "socal" : "state";
-    let coverageVisible = false;
     const regionPathPrefix = "/regions/";
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -1241,7 +1224,7 @@
         color,
         dashArray: status === "extrapolated_external" ? "6 5" : null,
         fillColor: isHatched ? `url(#hatch-${status}-${id})` : color,
-        fillOpacity: coverageVisible ? (highlightSoCal ? 0.06 : 0.025) : (highlightSoCal ? 0.23 : (isHatched ? 0.18 : (isOfficial ? 0.18 : 0.09))),
+        fillOpacity: highlightSoCal ? 0.23 : (isHatched ? 0.18 : (isOfficial ? 0.18 : 0.09)),
         opacity: highlightSoCal ? 1 : (isOfficial ? 0.95 : (status === "proposed" && feature.properties.draft ? 0.85 : 0.48)),
         weight: highlightSoCal ? 4 : (id === "east" ? 2 : 3)
       };
@@ -1494,7 +1477,7 @@
           hoveredRegion = hit.record;
           hoveredFeature = hit.feature;
           hoveredRegion.layer.setStyle(feature => ({...featureStyle(feature), weight: 4, opacity: 1,
-            fillOpacity: coverageVisible ? .08 : .24}));
+            fillOpacity: .24}));
           const exploreHint = regionView !== "socal" && regionId(hit.feature.properties) === "socal"
             ? `<span class="scope-help"><strong>Click to explore subregions</strong></span>` : "";
           regionHoverTooltip.setContent(`<div class="region-hover-name">${escapeHtml(hit.feature.properties.name || "Region")}</div>${scopeStackMarkup(hit.feature.properties)}${exploreHint}`);
@@ -1505,85 +1488,6 @@
     });
     map.on("movestart zoomstart popupopen overlayremove", clearRegionHover);
     L.DomEvent.on(map.getContainer(), "mouseleave", clearRegionHover);
-
-    // The compressed display layers contain only generalized coverage shapes
-    // and reported path geometry. Both start off, independent of the map view.
-    async function loadSampledLayer(filename) {
-      const response = await fetch(`${regionPathPrefix}${filename}`);
-      if (!response.ok) throw new Error("Sampled layer unavailable");
-      let bytes = new Uint8Array(await response.arrayBuffer());
-      if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-        if (!("DecompressionStream" in window)) throw new Error("This browser cannot open compressed layers");
-        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
-      }
-      const data = JSON.parse(new TextDecoder().decode(bytes));
-      if (data?.type !== "FeatureCollection" || !Array.isArray(data.features)) throw new Error("Invalid sampled layer");
-      return data;
-    }
-
-    function installSampledLayers() {
-      const control = L.control({position: "topleft"});
-      const colors = ["#5803a4", "#9e1c9b", "#d25072", "#f48b47", "#fdc527"];
-      const styles = {
-        coverage: feature => ({stroke: false, fill: true,
-          fillColor: colors[Number(feature.properties?.band) - 1] || colors[0],
-          fillOpacity: Number(feature.properties?.band) === 1 ? .5 : .75}),
-        topology: {color: "#315b9a", weight: 1, opacity: .66}
-      };
-      control.onAdd = () => {
-        const div = L.DomUtil.create("section", "sampled-layers");
-        div.innerHTML = `<div class="sampled-layers-title">Sampled layers</div>
-          <label><input type="checkbox" data-sample="coverage"><span>Sampled Coverage</span></label>
-          <label><input type="checkbox" data-sample="topology"><span>Sampled Topology</span></label>
-          <div class="sampled-legend" hidden><div>Reception margin</div><div class="sampled-legend-ramp"></div>
-            <div class="sampled-legend-range"><span>−6 dB</span><span>+18 dB or more</span></div></div>
-          <p class="sampled-layers-note">927.875 MHz sample. Coverage is generalized; reported paths may not be direct RF links.</p>
-          <p class="sampled-layers-status" role="status" aria-live="polite"></p>`;
-        const legend = div.querySelector(".sampled-legend");
-        const status = div.querySelector(".sampled-layers-status");
-        div.querySelectorAll("input[data-sample]").forEach(input => {
-          const kind = input.dataset.sample;
-          const paneName = `sampled-${kind}`;
-          const pane = map.createPane(paneName);
-          pane.style.zIndex = kind === "coverage" ? "310" : "410";
-          pane.style.pointerEvents = "none";
-          let layer, pending;
-          input.addEventListener("change", async () => {
-            if (input.checked) {
-              try {
-                pending ||= loadSampledLayer(`sampled-${kind}.geojson.gz`)
-                  .then(data => layer = L.geoJSON(data, {renderer: L.canvas({pane: paneName}),
-                    interactive: false, style: styles[kind]}))
-                  .catch(error => { pending = null; throw error; });
-                await pending;
-                if (!input.checked) return;
-                layer.addTo(map);
-                status.textContent = "";
-              } catch {
-                input.checked = false;
-                status.textContent = `${input.closest("label").textContent.trim()} is unavailable.`;
-              }
-            } else if (layer) map.removeLayer(layer);
-            if (kind === "coverage") {
-              clearRegionHover();
-              coverageVisible = !!layer && map.hasLayer(layer);
-              legend.hidden = !coverageVisible;
-              regionRecords.forEach(({layer}) => layer.setStyle(featureStyle));
-            }
-          });
-        });
-        L.DomEvent.disableClickPropagation(div);
-        return div;
-      };
-      control.addTo(map);
-
-      // Ignore legacy layer query parameters so a shared link starts with both off.
-      const url = new URL(window.location.href);
-      ["coverage", "coverageView", "coverageOpacity", "topology"].forEach(key => url.searchParams.delete(key));
-      window.history.replaceState(null, "", url);
-    }
-    installSampledLayers();
 
     function locationLabel(address) {
       if (!address) {

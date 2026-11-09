@@ -601,7 +601,6 @@
       "id": "pnw",
       "href": "/pnw",
       "title": "Pacific Northwest",
-      "summary": "County-line guess for the Pacific Northwest hierarchy. Regional scopes tile Washington and Oregon. City scopes cover the named communities. Southern British Columbia is the Lower Mainland and Vancouver Island, Montana is the northwest corner, and Idaho shows the panhandle, Lewis-Clark, Coeur d'Alene, and Boise.",
       "groups": [
         {
           "title": "Washington",
@@ -1053,7 +1052,6 @@
       "id": "imw",
       "href": "/imw",
       "title": "Intermountain West",
-      "summary": "County-line guess for the Utah and Idaho trees. Regional scopes tile each state. City scopes cover the named communities. The panhandle names come from the Pacific Northwest hierarchy. Boise is the Idaho scope that also carries pnw.",
       "groups": [
         {
           "title": "Utah",
@@ -1152,7 +1150,7 @@
             {
               "id": "pnw-boi",
               "code": "pnw-boi",
-              "name": "Pacific Northwest \u2014 Boise only",
+              "name": "Pacific Northwest — Boise only",
               "depth": 0,
               "kind": "alias"
             },

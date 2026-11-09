@@ -27,24 +27,9 @@ need an HTTP server.
 
 ## What is on the California map
 
-- **Region map** switches between **Original** and **SoCal proposal**. Original
-  uses the region geometry and labels saved from upstream revision
-  `85a26cfc2e39`. The proposal first shows the statewide map with the revised
-  SoCal region highlighted. Click SoCal to reveal its 10 draft subdivisions;
-  click outside SoCal or select **State view** to return to the statewide
-  proposal. Select **Original** to compare the upstream boundaries. Links
-  preserve the selected view and any clicked location.
-- Hover or tap the three northern SoCal boundary segments to highlight each
-  shared edge and read its terrain rationale. These are planning guides, not
-  verified RF viewsheds.
-- **Sampled Coverage** and **Sampled Topology** can be turned on independently.
-  Both start off and remain selected when switching map views. The compressed,
-  display-only coverage shapes show a generalized 927.875 MHz handheld
-  prediction for selected sites, not the full network. The average ITM model includes
-  terrain, vegetation, and structures for a five-foot outdoor receiver; its
-  shapes summarize a grid of approximately 0.0067 degrees in five margin bands.
-  Topology shows reported paths on that network, which are not necessarily
-  direct RF links.
+- Click SoCal to reveal its draft subdivisions; click outside SoCal or select
+  **State view** to return to the statewide map. Links can preserve `view=socal`
+  and any clicked location.
 - **Other nested areas** that claim county outlines remain in the layer control,
   hidden until you turn them on. In the proposal, former SoCal county areas are
   labeled legacy references and appear in location results when enabled.

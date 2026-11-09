@@ -182,7 +182,7 @@
       document.getElementById("directory").innerHTML = catalog.maps.map((map) => `
         <section class="region-map" id="${escapeHtml(map.id)}">
           <h2><a href="${escapeHtml(map.href)}">${escapeHtml(map.title)}</a></h2>
-          <p>${escapeHtml(map.summary)}${map.source ? ` <a href="${escapeHtml(map.source)}">Source tree</a>.` : ""}</p>
+          ${map.summary || map.source ? `<p>${map.summary ? escapeHtml(map.summary) : ""}${map.source ? `${map.summary ? " " : ""}<a href="${escapeHtml(map.source)}">Source tree</a>.` : ""}</p>` : ""}
           ${map.groups.map((group) => `
             <h3>${escapeHtml(group.title)}</h3>
             ${group.note ? `<p class="group-note">${escapeHtml(group.note)}</p>` : ""}

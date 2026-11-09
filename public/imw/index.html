@@ -215,32 +215,6 @@
       background: #f8fafc;
     }
 
-    .map-title {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      box-shadow: 0 8px 26px rgba(15, 35, 48, 0.16);
-      max-width: min(360px, calc(100vw - 24px));
-      padding: 10px 12px;
-    }
-
-    .map-title h1 {
-      font-size: 13px;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .map-title p {
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.4;
-      margin: 6px 0 0;
-    }
-
-    .map-title a {
-      color: #0f766e;
-    }
-
     .panel-toggle {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -324,6 +298,10 @@
       padding: 0.7rem 0.65rem 0.6rem;
     }
 
+    .detail:empty {
+      display: none;
+    }
+
     .tree-card h2,
     .detail h2 {
       font-size: 12px;
@@ -372,16 +350,6 @@
 
     .tree-row.is-active {
       background: var(--active);
-    }
-
-    .swatch {
-      border-radius: 999px;
-      box-shadow: inset 0 0 0 1px rgba(15, 35, 48, 0.22);
-      display: inline-block;
-      flex: 0 0 auto;
-      height: 0.65rem;
-      transform: translateY(0.05rem);
-      width: 0.65rem;
     }
 
     .detail {
@@ -454,13 +422,9 @@
     }
 
     @media (max-width: 720px) {
-      .tree-panel,
-      .map-title {
+      .tree-panel {
         max-width: min(100vw - 24px, 360px);
         width: min(100vw - 24px, 360px);
-      }
-
-      .tree-panel {
         max-height: min(42vh, 360px);
       }
     }
@@ -489,19 +453,6 @@
       return link;
     };
     homeLink.addTo(map);
-
-    const titleControl = L.control({ position: "topleft" });
-    titleControl.onAdd = () => {
-      const div = L.DomUtil.create("div", "map-title");
-      div.innerHTML = `
-        <h1 class="map-title-heading">Region map</h1>
-        <p class="map-title-summary">Loading scopes…</p>
-      `;
-      L.DomEvent.disableClickPropagation(div);
-      L.DomEvent.disableScrollPropagation(div);
-      return div;
-    };
-    titleControl.addTo(map);
 
     const overlayControl = L.control.layers(null, null, {
       collapsed: false,
@@ -707,7 +658,6 @@
       const node = tree.nodes[row.id];
       return `<button type="button" class="tree-row" data-id="${escapeHtml(row.id)}" style="padding-left:${8 + row.depth * 14}px">
         <code>${escapeHtml(node.code)}</code>
-        <i class="swatch" style="background:${escapeHtml(node.color)}"></i>
         <span>${escapeHtml(node.name)}</span>
       </button>`;
     }
@@ -715,9 +665,7 @@
     function renderDetail(id) {
       const host = document.getElementById("detail");
       if (!id || !tree.nodes[id]) {
-        host.innerHTML = `
-          <h2>How to read the map</h2>
-          <p>Click a scope in the tree, or click the map. Use the Layers box to show or hide individual scopes.</p>`;
+        host.innerHTML = "";
         return;
       }
       const node = tree.nodes[id];
@@ -890,35 +838,17 @@
     ]).then(([treeData, geojson]) => {
       tree = treeData;
       document.title = tree.title;
-      document.querySelector(".map-title-heading").textContent = tree.title;
-      const source = tree.source ? ` <a href="${escapeHtml(tree.source)}">Source hierarchy</a>.` : "";
-      document.querySelector(".map-title-summary").innerHTML = `${escapeHtml(tree.summary)}${source}`;
       features = geojson.features;
       layerRecords = [];
       layerById = new Map();
 
       features.forEach((item) => {
         const props = item.properties;
-        let layer;
-        if (props.kind === "campus") {
-          const [lon, lat] = item.geometry.coordinates;
-          layer = L.circleMarker([lat, lon], {
-            radius: 6,
-            color: "#fff",
-            fillColor: props.color,
-            fillOpacity: 0.95,
-            weight: 2
-          }).bindTooltip(`${props.code} campus`, { direction: "right", offset: [8, 0] })
-            .on("click", (event) => {
-              L.DomEvent.stopPropagation(event);
-              lockSelection(props.id, { fit: true });
-            });
-        } else {
-          layer = L.geoJSON(item, {
-            interactive: false,
-            style: styleFor
-          });
-        }
+        if (props.kind === "campus") return;
+        const layer = L.geoJSON(item, {
+          interactive: false,
+          style: styleFor
+        });
         layerById.set(props.id, layer);
         layerRecords.push({ id: props.id, layer, kind: props.kind });
         overlayControl.addOverlay(layer, `${escapeHtml(props.code)} - ${escapeHtml(props.name)}`);
