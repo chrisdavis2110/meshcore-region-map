@@ -205,35 +205,35 @@
               "id": "eldorado",
               "code": "eldorado",
               "name": "El Dorado County",
-              "depth": 5,
+              "depth": 4,
               "kind": "county"
             },
             {
               "id": "amador",
               "code": "amador",
               "name": "Amador County",
-              "depth": 5,
+              "depth": 4,
               "kind": "county"
             },
             {
               "id": "calaveras",
               "code": "calaveras",
               "name": "Calaveras County",
-              "depth": 5,
+              "depth": 4,
               "kind": "county"
             },
             {
               "id": "tuolumne",
               "code": "tuolumne",
               "name": "Tuolumne County",
-              "depth": 5,
+              "depth": 4,
               "kind": "county"
             },
             {
               "id": "mariposa",
               "code": "mariposa",
               "name": "Mariposa County",
-              "depth": 5,
+              "depth": 4,
               "kind": "county"
             },
             {
@@ -541,6 +541,13 @@
               "id": "highdesert",
               "code": "highdesert",
               "name": "Antelope & High Desert",
+              "depth": 4,
+              "kind": "draft subregion"
+            },
+            {
+              "id": "antval",
+              "code": "antval",
+              "name": "Antelope Valley",
               "depth": 4,
               "kind": "draft subregion"
             },
