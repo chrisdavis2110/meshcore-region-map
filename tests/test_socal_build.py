@@ -44,10 +44,10 @@ class DraftBuildTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
             builder.apply_socal_draft(baseline, output)
-            self.assertEqual(baseline['title'], 'California MeshCore Region Map · SoCal draft')
+            self.assertEqual(baseline['title'], 'California MeshCore Region Map')
             self.assertIn('draft for planning', baseline['notes'])
             drafts = [entry for entry in baseline['regions'] if entry.get('overlay_group') == 'subregion']
-            self.assertEqual(len(drafts), 10)
+            self.assertEqual(len(drafts), 11)
             self.assertEqual(len({e['id'] for e in baseline['regions']}), len(baseline['regions']))
             self.assertEqual(next(e for e in drafts if e['id'] == 'sfvalley')['proposed_code'], 'sfv')
             self.assertEqual(next(e for e in drafts if e['id'] == 'sfvalley')['area_code_hints'], ['818', '747'])

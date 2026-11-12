@@ -1446,7 +1446,8 @@
       const point = [latlng.lng, latlng.lat];
       let best = null;
       regionRecords.forEach(record => {
-        if (record.points || !map.hasLayer(record.layer) || (record.isSubregion && regionView !== "socal")) return;
+        // Any visible polygon layer gets hover hierarchy (including SoCal subregions like antval).
+        if (record.points || !map.hasLayer(record.layer)) return;
         const bounds = record.layer.getBounds();
         if (!bounds.isValid() || !bounds.contains(latlng)) return;
         for (const feature of record.active.data.features || []) {
@@ -1572,10 +1573,16 @@
     function queryRegionsAt(latlng) {
       const point = [latlng.lng, latlng.lat];
       return regionRecords
-        .flatMap(({active, layer}) => (active.data.features || [])
-          .filter(feature => (!feature.properties.legacy_reference || map.hasLayer(layer))
-            && (feature.properties.overlay_group !== "subregion" || regionView === "socal")
-            && !isPointFeature(feature) && pointInGeometry(point, feature.geometry)))
+        .flatMap(({active, layer, isSubregion}) => (active.data.features || [])
+          .filter(feature => {
+            if (isPointFeature(feature) || !pointInGeometry(point, feature.geometry)) return false;
+            if (feature.properties.legacy_reference && !map.hasLayer(layer)) return false;
+            // Subregions: include when visible on the map, or when exploring SoCal.
+            if (isSubregion || feature.properties.overlay_group === "subregion") {
+              return map.hasLayer(layer) || regionView === "socal";
+            }
+            return true;
+          }))
         .map((feature) => feature.properties)
         .sort((a, b) => {
           if (Boolean(a.optional) !== Boolean(b.optional)) {
